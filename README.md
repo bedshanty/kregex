@@ -436,6 +436,110 @@ regex {
 }
 ```
 
+## Pre-built Patterns
+
+Kregex provides pre-built patterns for common use cases. These are extension functions on `RegexBuilder` that you can use directly in your regex definitions.
+
+### Email & URL
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `email()` | Basic email pattern | `user@example.com` |
+| `httpUrl()` | HTTP/HTTPS URL | `https://example.com/path` |
+| `httpUrlWithCapture()` | URL with named captures (protocol, domain, port, path) | `https://example.com:8080/api` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    email()
+    endOfLine()
+}
+println(pattern.matches("user@example.com"))  // true
+```
+
+### IP Addresses
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `ipv4()` | IPv4 address (format only) | `192.168.1.1` |
+| `ipv4Strict()` | IPv4 with octet validation (0-255) | `192.168.1.1` |
+| `ipv6()` | IPv6 address (8 groups) | `2001:0db8:85a3:0000:0000:8a2e:0370:7334` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    ipv4Strict()
+    endOfLine()
+}
+println(pattern.matches("192.168.1.1"))  // true
+println(pattern.matches("256.1.1.1"))    // false (invalid octet)
+```
+
+### Phone Numbers
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `phoneNumber()` | Flexible phone format | `+1-123-456-7890`, `(123) 456-7890` |
+| `usPhoneNumber()` | US phone format | `(123) 456-7890`, `123-456-7890` |
+
+### Date & Time
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `isoDate()` | ISO 8601 date | `2026-01-15` |
+| `time()` | Time (HH:MM or HH:MM:SS) | `14:30`, `14:30:59` |
+| `isoDateTime()` | ISO 8601 datetime | `2026-01-15T14:30:00Z` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    isoDateTime()
+    endOfLine()
+}
+println(pattern.matches("2026-01-15T14:30:00Z"))       // true
+println(pattern.matches("2026-01-15T14:30:00+09:00"))  // true
+```
+
+### Identifiers
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `uuid()` | UUID format | `550e8400-e29b-41d4-a716-446655440000` |
+| `hexColor()` | Hex color (#RGB, #RRGGBB) | `#fff`, `#FF5733` |
+| `slug()` | URL-friendly identifier | `my-blog-post-123` |
+| `semver()` | Semantic version | `1.0.0`, `2.1.3-alpha.1` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    hexColor()
+    endOfLine()
+}
+println(pattern.matches("#FF5733"))  // true
+println(pattern.matches("#fff"))     // true
+```
+
+### Numbers & Text
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `word()` | One or more word characters | `Hello` |
+| `integer()` | Integer with optional sign | `123`, `-456`, `+789` |
+| `decimal()` | Decimal number | `123.456`, `-0.5`, `.25` |
+| `quotedString()` | Double-quoted string | `"hello"` |
+| `singleQuotedString()` | Single-quoted string | `'hello'` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    decimal()
+    endOfLine()
+}
+println(pattern.matches("123.456"))  // true
+println(pattern.matches("-0.5"))     // true
+println(pattern.matches(".25"))      // true
+```
+
 ## Debugging Patterns
 
 Use the standard `Regex.pattern` property to inspect the generated pattern:

@@ -6,7 +6,7 @@ package io.github.bedshanty.kregex
  * These are pre-built patterns for frequently used validations.
  * Each function appends the corresponding pattern to the builder.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 
 // =============================================================================

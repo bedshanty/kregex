@@ -413,6 +413,110 @@ regex {
 }
 ```
 
+## 사전 정의 패턴
+
+Kregex는 자주 사용되는 패턴을 미리 정의해 제공합니다. `RegexBuilder`의 확장 함수로, 정규식 정의 내에서 바로 사용할 수 있습니다.
+
+### 이메일 & URL
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `email()` | 기본 이메일 패턴 | `user@example.com` |
+| `httpUrl()` | HTTP/HTTPS URL | `https://example.com/path` |
+| `httpUrlWithCapture()` | 캡처 그룹이 있는 URL (protocol, domain, port, path) | `https://example.com:8080/api` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    email()
+    endOfLine()
+}
+println(pattern.matches("user@example.com"))  // true
+```
+
+### IP 주소
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `ipv4()` | IPv4 주소 (형식만 검증) | `192.168.1.1` |
+| `ipv4Strict()` | IPv4 주소 (0-255 범위 검증) | `192.168.1.1` |
+| `ipv6()` | IPv6 주소 (8개 그룹) | `2001:0db8:85a3:0000:0000:8a2e:0370:7334` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    ipv4Strict()
+    endOfLine()
+}
+println(pattern.matches("192.168.1.1"))  // true
+println(pattern.matches("256.1.1.1"))    // false (잘못된 옥텟)
+```
+
+### 전화번호
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `phoneNumber()` | 유연한 전화번호 형식 | `+1-123-456-7890`, `(123) 456-7890` |
+| `usPhoneNumber()` | 미국 전화번호 형식 | `(123) 456-7890`, `123-456-7890` |
+
+### 날짜 & 시간
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `isoDate()` | ISO 8601 날짜 | `2026-01-15` |
+| `time()` | 시간 (HH:MM 또는 HH:MM:SS) | `14:30`, `14:30:59` |
+| `isoDateTime()` | ISO 8601 날짜시간 | `2026-01-15T14:30:00Z` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    isoDateTime()
+    endOfLine()
+}
+println(pattern.matches("2026-01-15T14:30:00Z"))       // true
+println(pattern.matches("2026-01-15T14:30:00+09:00"))  // true
+```
+
+### 식별자
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `uuid()` | UUID 형식 | `550e8400-e29b-41d4-a716-446655440000` |
+| `hexColor()` | 16진수 색상 (#RGB, #RRGGBB) | `#fff`, `#FF5733` |
+| `slug()` | URL 친화적 식별자 | `my-blog-post-123` |
+| `semver()` | 시맨틱 버전 | `1.0.0`, `2.1.3-alpha.1` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    hexColor()
+    endOfLine()
+}
+println(pattern.matches("#FF5733"))  // true
+println(pattern.matches("#fff"))     // true
+```
+
+### 숫자 & 텍스트
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `word()` | 하나 이상의 단어 문자 | `Hello` |
+| `integer()` | 부호 포함 정수 | `123`, `-456`, `+789` |
+| `decimal()` | 소수 | `123.456`, `-0.5`, `.25` |
+| `quotedString()` | 큰따옴표 문자열 | `"hello"` |
+| `singleQuotedString()` | 작은따옴표 문자열 | `'hello'` |
+
+```kotlin
+val pattern = regex {
+    startOfLine()
+    decimal()
+    endOfLine()
+}
+println(pattern.matches("123.456"))  // true
+println(pattern.matches("-0.5"))     // true
+println(pattern.matches(".25"))      // true
+```
+
 ## 패턴 디버깅
 
 `Regex.pattern` 속성으로 생성된 패턴을 확인할 수 있습니다:
