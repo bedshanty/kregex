@@ -160,6 +160,112 @@ interface CharacterRangeCapable {
     fun unicodeSymbol() = unicodeProperty("S")
 
     // =========================================================================
+    // POSIX Character Classes
+    // =========================================================================
+
+    /**
+     * Matches alphanumeric characters (`\p{Alnum}`).
+     * Equivalent to `[a-zA-Z0-9]`.
+     */
+    fun posixAlnum() {
+        appendRaw("\\p{Alnum}")
+    }
+
+    /**
+     * Matches alphabetic characters (`\p{Alpha}`).
+     * Equivalent to `[a-zA-Z]`.
+     */
+    fun posixAlpha() {
+        appendRaw("\\p{Alpha}")
+    }
+
+    /**
+     * Matches ASCII characters (`\p{ASCII}`).
+     * Equivalent to `[\x00-\x7F]`.
+     */
+    fun posixAscii() {
+        appendRaw("\\p{ASCII}")
+    }
+
+    /**
+     * Matches blank characters (`\p{Blank}`).
+     * Equivalent to `[ \t]` (space and tab).
+     */
+    fun posixBlank() {
+        appendRaw("\\p{Blank}")
+    }
+
+    /**
+     * Matches control characters (`\p{Cntrl}`).
+     */
+    fun posixCntrl() {
+        appendRaw("\\p{Cntrl}")
+    }
+
+    /**
+     * Matches digit characters (`\p{Digit}`).
+     * Equivalent to `[0-9]`.
+     */
+    fun posixDigit() {
+        appendRaw("\\p{Digit}")
+    }
+
+    /**
+     * Matches visible characters (`\p{Graph}`).
+     * Printable characters excluding space.
+     */
+    fun posixGraph() {
+        appendRaw("\\p{Graph}")
+    }
+
+    /**
+     * Matches lowercase letters (`\p{Lower}`).
+     * Equivalent to `[a-z]`.
+     */
+    fun posixLower() {
+        appendRaw("\\p{Lower}")
+    }
+
+    /**
+     * Matches printable characters (`\p{Print}`).
+     * Visible characters plus space.
+     */
+    fun posixPrint() {
+        appendRaw("\\p{Print}")
+    }
+
+    /**
+     * Matches punctuation characters (`\p{Punct}`).
+     */
+    fun posixPunct() {
+        appendRaw("\\p{Punct}")
+    }
+
+    /**
+     * Matches whitespace characters (`\p{Space}`).
+     * Equivalent to `[ \t\n\r\f\v]`.
+     */
+    fun posixSpace() {
+        appendRaw("\\p{Space}")
+    }
+
+    /**
+     * Matches uppercase letters (`\p{Upper}`).
+     * Equivalent to `[A-Z]`.
+     */
+    fun posixUpper() {
+        appendRaw("\\p{Upper}")
+    }
+
+    /**
+     * Matches hexadecimal digits (`\p{XDigit}`).
+     * Equivalent to `[0-9a-fA-F]`.
+     */
+    fun posixXDigit() {
+        appendRaw("\\p{XDigit}")
+    }
+
+    // =========================================================================
     // Korean (Hangul) Character Classes
     // =========================================================================
 
