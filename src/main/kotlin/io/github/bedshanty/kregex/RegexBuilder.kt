@@ -282,7 +282,7 @@ interface CharacterRangeCapable {
      * ```
      */
     fun hangul() {
-        range('가', '힣')
+        range('\uAC00', '\uD7A3')  // 가-힣
     }
 
     /**
@@ -292,7 +292,7 @@ interface CharacterRangeCapable {
      * Unicode range: U+3131 to U+3163 (ㄱ-ㅣ)
      */
     fun hangulJamo() {
-        range('ㄱ', 'ㅣ')
+        range('\u3131', '\u3163')  // ㄱ-ㅣ
     }
 
     /**
@@ -302,7 +302,7 @@ interface CharacterRangeCapable {
      * Unicode range: U+3131 to U+314E (ㄱ-ㅎ)
      */
     fun hangulConsonant() {
-        range('ㄱ', 'ㅎ')
+        range('\u3131', '\u314E')  // ㄱ-ㅎ
     }
 
     /**
@@ -312,7 +312,7 @@ interface CharacterRangeCapable {
      * Unicode range: U+314F to U+3163 (ㅏ-ㅣ)
      */
     fun hangulVowel() {
-        range('ㅏ', 'ㅣ')
+        range('\u314F', '\u3163')  // ㅏ-ㅣ
     }
 }
 
