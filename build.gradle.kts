@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.1.21"
     `maven-publish`
     signing
+    id("org.jetbrains.dokka") version "1.9.20"
 }
 
 group = "io.github.bedshanty"
@@ -30,7 +31,8 @@ val sourcesJar by tasks.registering(Jar::class) {
 
 val javadocJar by tasks.registering(Jar::class) {
     archiveClassifier.set("javadoc")
-    from(tasks.named("javadoc"))
+    dependsOn(tasks.dokkaHtml)
+    from(tasks.dokkaHtml.flatMap { it.outputDirectory })
 }
 
 publishing {
