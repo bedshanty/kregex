@@ -93,9 +93,14 @@ println(emailPattern.matches("invalid"))           // false
 ### Phone Number
 
 ```kotlin
+// Phone number with optional country code (1-3 digits)
 val phonePattern = regex {
     startOfLine()
-    optional { literal("+") }
+    optional {
+        literal("+")
+        repeat(1, 3) { digit() }
+        anyOf(" -")
+    }
     repeat(3) { digit() }
     anyOf(" -")
     repeat(3, 4) { digit() }
@@ -104,11 +109,11 @@ val phonePattern = regex {
     endOfLine()
 }
 
-println(phonePattern.matches("123-456-7890"))  // true
-println(phonePattern.matches("123 456 7890"))  // true (with spaces)
-println(phonePattern.matches("+1-456-7890"))   // true (with country code)
-println(phonePattern.matches("+1 456 7890"))   // true (country code + spaces)
-println(phonePattern.matches("+1 234-5678"))   // false (wrong format)
+println(phonePattern.matches("123-456-7890"))     // true
+println(phonePattern.matches("123 456 7890"))     // true (with spaces)
+println(phonePattern.matches("+1-123-456-7890"))  // true (US)
+println(phonePattern.matches("+82-123-456-7890")) // true (Korea)
+println(phonePattern.matches("+1 234-5678"))      // false (wrong format)
 ```
 
 ### URL Parsing with Named Captures
