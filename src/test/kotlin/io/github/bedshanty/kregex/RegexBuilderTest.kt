@@ -78,6 +78,27 @@ class RegexBuilderTest {
         assertFalse(pattern.containsMatchIn("at the"))
     }
 
+    @Test
+    fun `line block wraps with start and end of line anchors`() {
+        val pattern = regex {
+            line { digit() }
+        }
+        assertEquals("^\\d$", pattern.pattern)
+        assertTrue(pattern.matches("5"))
+        assertFalse(pattern.matches("55"))
+        assertFalse(pattern.matches("a"))
+    }
+
+    @Test
+    fun `input block wraps with start and end of input anchors`() {
+        val pattern = regex {
+            input { digit() }
+        }
+        assertEquals("\\A\\d\\z", pattern.pattern)
+        assertTrue(pattern.matches("5"))
+        assertFalse(pattern.matches("5\n"))
+    }
+
     // =========================================================================
     // Character Classes Tests
     // =========================================================================
