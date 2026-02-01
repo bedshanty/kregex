@@ -54,9 +54,9 @@ dependencies {
 ```kotlin
 // Simple pattern
 val digitPattern = regex {
-    startOfLine()
-    oneOrMore { digit() }
-    endOfLine()
+    line {
+        oneOrMore { digit() }
+    }
 }
 
 println(digitPattern.matches("12345")) // true
@@ -65,86 +65,94 @@ println(digitPattern.matches("abc"))   // false
 
 ## Usage Examples
 
-### Email Validation
+### Hex Color
 
 ```kotlin
-val emailPattern = regex(RegexOption.IGNORE_CASE) {
-    startOfLine()
-    oneOrMore {
-        anyOf {
-            wordChar()
-            chars(".-")
-        }
-    }
-    literal("@")
-    oneOrMore {
-        anyOf {
-            wordChar()
-            chars("-")
-        }
-    }
-    literal(".")
-    repeat(2, 6) { range('a', 'z') }
-    endOfLine()
+// #[0-9A-Fa-f]{6}
+val hexColorPattern = regex {
+    literal("#")
+    repeat(6) { hexDigit() }
 }
 
-println(emailPattern.matches("user@example.com"))  // true
-println(emailPattern.matches("invalid"))           // false
+println(hexColorPattern.matches("#FF5733"))  // true
+println(hexColorPattern.matches("#abc123"))  // true
+println(hexColorPattern.matches("#GHIJKL"))  // false
 ```
 
 ### Phone Number
 
 ```kotlin
-// Phone number with optional country code (1-3 digits)
+// ^(?:\+(?:\d){1,3}[ -])?(?:\d){3}[ -](?:\d){3,4}[ -](?:\d){4}$
 val phonePattern = regex {
-    startOfLine()
-    optional {
-        literal("+")
-        repeat(1, 3) { digit() }
+    line {
+        optional {
+            literal("+")
+            repeat(1, 3) { digit() }
+            anyOf(" -")
+        }
+        repeat(3) { digit() }
         anyOf(" -")
+        repeat(3, 4) { digit() }
+        anyOf(" -")
+        repeat(4) { digit() }
     }
-    repeat(3) { digit() }
-    anyOf(" -")
-    repeat(3, 4) { digit() }
-    anyOf(" -")
-    repeat(4) { digit() }
-    endOfLine()
 }
 
 println(phonePattern.matches("123-456-7890"))     // true
-println(phonePattern.matches("123 456 7890"))     // true (with spaces)
-println(phonePattern.matches("+1-123-456-7890"))  // true (US)
-println(phonePattern.matches("+82-123-456-7890")) // true (Korea)
-println(phonePattern.matches("+1 234-5678"))      // false (wrong format)
+println(phonePattern.matches("123 456 7890"))     // true
+println(phonePattern.matches("+1-123-456-7890"))  // true
+println(phonePattern.matches("+82-123-456-7890")) // true
+```
+
+### Image File Extension
+
+```kotlin
+// ^.+\.(jpg|png|gif)$
+val imageFilePattern = regex {
+    line {
+        oneOrMore { anyChar() }
+        literal(".")
+        either(
+            { literal("jpg") },
+            { literal("png") },
+            { literal("gif") }
+        )
+    }
+}
+
+println(imageFilePattern.matches("photo.jpg"))       // true
+println(imageFilePattern.matches("animation.gif"))   // true
+println(imageFilePattern.matches("document.pdf"))    // false
 ```
 
 ### URL Parsing with Named Captures
 
 ```kotlin
+// ^(?<protocol>https|http)://(?<domain>[\w.-]+)(?<port>:\d+)?(?<path>[\w/.-]*)?$
 val urlPattern = regex {
-    startOfLine()
-    captureAs("protocol") {
-        either(
-            { literal("https") },
-            { literal("http") }
-        )
-    }
-    literal("://")
-    captureAs("domain") {
-        oneOrMore { anyOf { wordChar(); chars(".-") } }
-    }
-    optional {
-        captureAs("port") {
-            literal(":")
-            oneOrMore { digit() }
+    line {
+        captureAs("protocol") {
+            either(
+                { literal("https") },
+                { literal("http") }
+            )
+        }
+        literal("://")
+        captureAs("domain") {
+            oneOrMore { anyOf { wordChar(); chars(".-") } }
+        }
+        optional {
+            captureAs("port") {
+                literal(":")
+                oneOrMore { digit() }
+            }
+        }
+        optional {
+            captureAs("path") {
+                zeroOrMore { anyOf { wordChar(); chars("/.-") } }
+            }
         }
     }
-    optional {
-        captureAs("path") {
-            zeroOrMore { anyOf { wordChar(); chars("/.-") } }
-        }
-    }
-    endOfLine()
 }
 
 val match = urlPattern.find("https://example.com:8080/api/v1")!!
@@ -156,6 +164,7 @@ println(match.groups["port"]?.value)      // :8080
 ### HTML Tag Matching with Back References
 
 ```kotlin
+// <(?<tag>\w+).*>.*?</\k<tag>>
 val htmlTag = regex {
     literal("<")
     captureAs("tag") { oneOrMore { wordChar() } }
@@ -308,9 +317,7 @@ These patterns work in both `RegexBuilder` and `CharClassBuilder` contexts:
 ```kotlin
 // Match Korean text
 val koreanPattern = regex {
-    startOfLine()
-    oneOrMore { hangul() }
-    endOfLine()
+    line { oneOrMore { hangul() } }
 }
 println(koreanPattern.matches("안녕하세요"))  // true
 
@@ -526,9 +533,7 @@ Kregex provides pre-built patterns for common use cases. These are extension fun
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    email()
-    endOfLine()
+    line { email() }
 }
 println(pattern.matches("user@example.com"))  // true
 ```
@@ -543,9 +548,7 @@ println(pattern.matches("user@example.com"))  // true
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    ipv4Strict()
-    endOfLine()
+    line { ipv4Strict() }
 }
 println(pattern.matches("192.168.1.1"))  // true
 println(pattern.matches("256.1.1.1"))    // false (invalid octet)
@@ -568,9 +571,7 @@ println(pattern.matches("256.1.1.1"))    // false (invalid octet)
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    isoDateTime()
-    endOfLine()
+    line { isoDateTime() }
 }
 println(pattern.matches("2026-01-15T14:30:00Z"))       // true
 println(pattern.matches("2026-01-15T14:30:00+09:00"))  // true
@@ -587,9 +588,7 @@ println(pattern.matches("2026-01-15T14:30:00+09:00"))  // true
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    hexColor()
-    endOfLine()
+    line { hexColor() }
 }
 println(pattern.matches("#FF5733"))  // true
 println(pattern.matches("#fff"))     // true
@@ -607,9 +606,7 @@ println(pattern.matches("#fff"))     // true
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    decimal()
-    endOfLine()
+    line { decimal() }
 }
 println(pattern.matches("123.456"))  // true
 println(pattern.matches("-0.5"))     // true
@@ -622,11 +619,11 @@ Use the standard `Regex.pattern` property to inspect the generated pattern:
 
 ```kotlin
 val regex = regex {
-    startOfLine()
-    oneOrMore { digit() }
-    literal("@")
-    oneOrMore { wordChar() }
-    endOfLine()
+    line {
+        oneOrMore { digit() }
+        literal("@")
+        oneOrMore { wordChar() }
+    }
 }
 
 println("Generated pattern: ${regex.pattern}")
@@ -656,25 +653,25 @@ val pattern = Regex("^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z0-9-]+)\\.(?:[a-zA-Z]{2,6})
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    oneOrMore {
-        anyOf {
-            asciiAlphanumeric()
-            chars("._%-")
+    line {
+        oneOrMore {
+            anyOf {
+                asciiAlphanumeric()
+                chars("._%-")
+            }
+        }
+        literal("@")
+        oneOrMore {
+            anyOf {
+                asciiAlphanumeric()
+                chars("-")
+            }
+        }
+        literal(".")
+        repeat(2, 6) {
+            anyOf { asciiLowercase() }
         }
     }
-    literal("@")
-    oneOrMore {
-        anyOf {
-            asciiAlphanumeric()
-            chars("-")
-        }
-    }
-    literal(".")
-    repeat(2, 6) {
-        anyOf { asciiLowercase() }
-    }
-    endOfLine()
 }
 ```
 

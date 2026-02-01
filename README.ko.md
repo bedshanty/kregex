@@ -54,13 +54,125 @@ dependencies {
 
 ```kotlin
 val 숫자패턴 = regex {
-    startOfLine()
-    oneOrMore { digit() }
-    endOfLine()
+    line {
+        oneOrMore { digit() }
+    }
 }
 
 println(숫자패턴.matches("12345")) // true
 println(숫자패턴.matches("abc"))   // false
+```
+
+## 사용 예제
+
+### 색상 코드
+
+```kotlin
+// #[0-9A-Fa-f]{6}
+val hexColorPattern = regex {
+    literal("#")
+    repeat(6) { hexDigit() }
+}
+
+println(hexColorPattern.matches("#FF5733"))  // true
+println(hexColorPattern.matches("#abc123"))  // true
+println(hexColorPattern.matches("#GHIJKL"))  // false
+```
+
+### 휴대폰 번호
+
+```kotlin
+// ^01\d-\d{3,4}-\d{4}$
+val 휴대폰번호 = regex {
+    line {
+        literal("01")
+        digit()
+        literal("-")
+        repeat(3, 4) { digit() }
+        literal("-")
+        repeat(4) { digit() }
+    }
+}
+
+println(휴대폰번호.matches("010-1234-5678"))  // true
+println(휴대폰번호.matches("011-123-4567"))   // true
+println(휴대폰번호.matches("010.1234.5678"))  // false
+```
+
+### 이미지 파일 확장자
+
+```kotlin
+// ^.+\.(jpg|png|gif)$
+val 이미지파일패턴 = regex {
+    line {
+        oneOrMore { anyChar() }
+        literal(".")
+        either(
+            { literal("jpg") },
+            { literal("png") },
+            { literal("gif") }
+        )
+    }
+}
+
+println(이미지파일패턴.matches("photo.jpg"))       // true
+println(이미지파일패턴.matches("animation.gif"))   // true
+println(이미지파일패턴.matches("document.pdf"))    // false
+```
+
+### 캡처 그룹으로 URL 파싱
+
+```kotlin
+// ^(?<프로토콜>https|http)://(?<도메인>[\w.-]+)(?<포트>:\d+)?(?<경로>[\w/.-]*)?$
+val URL패턴 = regex {
+    line {
+        capture("프로토콜") {
+            either(
+                { literal("https") },
+                { literal("http") }
+            )
+        }
+        literal("://")
+        capture("도메인") {
+            oneOrMore { anyOf { wordChar(); chars(".-") } }
+        }
+        optional {
+            capture("포트") {
+                literal(":")
+                oneOrMore { digit() }
+            }
+        }
+        optional {
+            capture("경로") {
+                zeroOrMore { anyOf { wordChar(); chars("/.-") } }
+            }
+        }
+    }
+}
+
+val 매치결과 = URL패턴.find("https://example.com:8080/api/v1")!!
+println(매치결과.groups["프로토콜"]?.value)  // https
+println(매치결과.groups["도메인"]?.value)    // example.com
+println(매치결과.groups["포트"]?.value)      // :8080
+```
+
+### HTML 태그 매칭 (역참조 사용)
+
+```kotlin
+// <(?<태그>\w+).*>.*?</\k<태그>>
+val HTML태그 = regex {
+    literal("<")
+    capture("태그") { oneOrMore { wordChar() } }
+    zeroOrMore { anyChar() }
+    literal(">")
+    zeroOrMoreLazy { anyChar() }
+    literal("</")
+    backReference("태그")
+    literal(">")
+}
+
+println(HTML태그.containsMatchIn("<div>내용</div>"))    // true
+println(HTML태그.containsMatchIn("<div>내용</span>"))   // false
 ```
 
 ## 한글 지원
@@ -81,9 +193,9 @@ Kregex는 한글 처리를 위한 전용 함수를 제공합니다.
 ```kotlin
 // 완성형 한글만 매칭
 val 한글패턴 = regex {
-    startOfLine()
-    oneOrMore { hangul() }
-    endOfLine()
+    line {
+        oneOrMore { hangul() }
+    }
 }
 
 println(한글패턴.matches("안녕하세요"))  // true
@@ -96,9 +208,9 @@ println(한글패턴.matches("안녕123"))     // false
 ```kotlin
 // 자음/모음 매칭 (ㅋㅋㅋ, ㅎㅎㅎ 등)
 val 자모패턴 = regex {
-    startOfLine()
-    oneOrMore { hangulJamo() }
-    endOfLine()
+    line {
+        oneOrMore { hangulJamo() }
+    }
 }
 
 println(자모패턴.matches("ㅋㅋㅋ"))  // true
@@ -123,164 +235,6 @@ val 혼합패턴 = regex {
 println(혼합패턴.matches("가격1000원"))   // true
 println(혼합패턴.matches("ㅋㅋ123ㅎㅎ"))  // true
 // 생성된 패턴: [가-힣ㄱ-ㅣ\d]+
-```
-
-## 사용 예제
-
-### 휴대폰 번호
-
-```kotlin
-val 휴대폰번호 = regex {
-    startOfLine()
-    literal("01")
-    digit()
-    literal("-")
-    repeat(3, 4) { digit() }
-    literal("-")
-    repeat(4) { digit() }
-    endOfLine()
-}
-
-println(휴대폰번호.matches("010-1234-5678"))  // true
-println(휴대폰번호.matches("011-123-4567"))   // true
-println(휴대폰번호.matches("010.1234.5678"))  // false
-```
-
-### 주민등록번호 형식 검증
-
-```kotlin
-val 주민번호형식 = regex {
-    startOfLine()
-    // 생년월일 (YYMMDD)
-    repeat(2) { digit() }  // 년도
-    either(
-        { literal("0"); range('1', '9') },  // 01-09월
-        { literal("1"); range('0', '2') }   // 10-12월
-    )
-    either(
-        { literal("0"); range('1', '9') },  // 01-09일
-        { range('1', '2'); digit() },       // 10-29일
-        { literal("3"); range('0', '1') }   // 30-31일
-    )
-    literal("-")
-    // 뒷자리 (성별 + 지역코드 + 일련번호 + 검증번호)
-    range('1', '4')  // 성별 (1,2: 1900년대, 3,4: 2000년대)
-    repeat(6) { digit() }
-    endOfLine()
-}
-
-println(주민번호형식.matches("901231-1234567"))  // true
-println(주민번호형식.matches("000101-3234567"))  // true
-println(주민번호형식.matches("901331-1234567"))  // false (13월 없음)
-```
-
-### 사업자등록번호
-
-```kotlin
-val 사업자번호 = regex {
-    startOfLine()
-    repeat(3) { digit() }
-    literal("-")
-    repeat(2) { digit() }
-    literal("-")
-    repeat(5) { digit() }
-    endOfLine()
-}
-
-println(사업자번호.matches("123-45-67890"))  // true
-```
-
-### 금액 표시 (원화)
-
-```kotlin
-val 원화금액 = regex {
-    startOfLine()
-    optional { literal("₩") }
-    oneOrMore { digit() }
-    zeroOrMore {
-        literal(",")
-        repeat(3) { digit() }
-    }
-    optional { literal("원") }
-    endOfLine()
-}
-
-println(원화금액.matches("1,000,000"))    // true
-println(원화금액.matches("₩50,000원"))    // true
-println(원화금액.matches("10000"))        // true
-```
-
-### 캡처 그룹으로 URL 파싱
-
-```kotlin
-val URL패턴 = regex {
-    startOfLine()
-    capture("프로토콜") {
-        either(
-            { literal("https") },
-            { literal("http") }
-        )
-    }
-    literal("://")
-    capture("도메인") {
-        oneOrMore { anyOf { wordChar(); chars(".-") } }
-    }
-    optional {
-        capture("포트") {
-            literal(":")
-            oneOrMore { digit() }
-        }
-    }
-    optional {
-        capture("경로") {
-            zeroOrMore { anyOf { wordChar(); chars("/.-") } }
-        }
-    }
-    endOfLine()
-}
-
-val 매치결과 = URL패턴.find("https://example.com:8080/api/v1")!!
-println(매치결과.groups["프로토콜"]?.value)  // https
-println(매치결과.groups["도메인"]?.value)    // example.com
-println(매치결과.groups["포트"]?.value)      // :8080
-```
-
-### HTML 태그 매칭 (역참조 사용)
-
-```kotlin
-val HTML태그 = regex {
-    literal("<")
-    capture("태그") { oneOrMore { wordChar() } }
-    zeroOrMore { anyChar() }
-    literal(">")
-    zeroOrMoreLazy { anyChar() }
-    literal("</")
-    backReference("태그")
-    literal(">")
-}
-
-println(HTML태그.containsMatchIn("<div>내용</div>"))    // true
-println(HTML태그.containsMatchIn("<div>내용</span>"))   // false
-```
-
-### 전후방 탐색
-
-```kotlin
-// "원" 앞의 숫자만 매칭
-val 금액숫자 = regex {
-    oneOrMore { digit() }
-    lookAhead { literal("원") }
-}
-
-val 텍스트 = "가격은 5000원입니다"
-val 결과 = 금액숫자.find(텍스트)
-println(결과?.value)  // 5000
-
-// "$" 뒤가 아닌 숫자만 매칭
-val 원화숫자 = regex {
-    negativeLookBehind { literal("$") }
-    oneOrMore { digit() }
-}
 ```
 
 ## API 레퍼런스
@@ -503,9 +457,7 @@ Kregex는 자주 사용되는 패턴을 미리 정의해 제공합니다. `Regex
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    email()
-    endOfLine()
+    line { email() }
 }
 println(pattern.matches("user@example.com"))  // true
 ```
@@ -520,9 +472,7 @@ println(pattern.matches("user@example.com"))  // true
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    ipv4Strict()
-    endOfLine()
+    line { ipv4Strict() }
 }
 println(pattern.matches("192.168.1.1"))  // true
 println(pattern.matches("256.1.1.1"))    // false (잘못된 옥텟)
@@ -545,9 +495,7 @@ println(pattern.matches("256.1.1.1"))    // false (잘못된 옥텟)
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    isoDateTime()
-    endOfLine()
+    line { isoDateTime() }
 }
 println(pattern.matches("2026-01-15T14:30:00Z"))       // true
 println(pattern.matches("2026-01-15T14:30:00+09:00"))  // true
@@ -564,9 +512,7 @@ println(pattern.matches("2026-01-15T14:30:00+09:00"))  // true
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    hexColor()
-    endOfLine()
+    line { hexColor() }
 }
 println(pattern.matches("#FF5733"))  // true
 println(pattern.matches("#fff"))     // true
@@ -584,9 +530,7 @@ println(pattern.matches("#fff"))     // true
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    decimal()
-    endOfLine()
+    line { decimal() }
 }
 println(pattern.matches("123.456"))  // true
 println(pattern.matches("-0.5"))     // true
@@ -599,10 +543,10 @@ println(pattern.matches(".25"))      // true
 
 ```kotlin
 val 정규식 = regex {
-    startOfLine()
-    oneOrMore { hangul() }
-    literal("님")
-    endOfLine()
+    line {
+        oneOrMore { hangul() }
+        literal("님")
+    }
 }
 
 println("생성된 패턴: ${정규식.pattern}")
@@ -632,9 +576,7 @@ val pattern = Regex("^[가-힣]{2,5}$")
 
 ```kotlin
 val pattern = regex {
-    startOfLine()
-    repeat(2, 5) { hangul() }
-    endOfLine()
+    line { repeat(2, 5) { hangul() } }
 }
 ```
 
