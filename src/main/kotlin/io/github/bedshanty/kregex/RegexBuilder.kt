@@ -87,6 +87,16 @@ interface CharacterRangeCapable {
         appendRaw("\\W")
     }
 
+    // =========================================================================
+    // Unicode Support
+    // =========================================================================
+
+    // Unicode support methods are inherited from CharacterRangeCapable interface:
+    // - unicodeProperty(), notUnicodeProperty()
+    // - unicodeScript(), unicodeBlock()
+    // - unicodeLetter(), unicodeUppercaseLetter(), unicodeLowercaseLetter()
+    // - unicodeNumber(), unicodePunctuation(), unicodeSymbol()
+
     /**
      * Appends a Unicode property class (`\p{...}`).
      * Matches any character with the specified Unicode property.
@@ -314,6 +324,115 @@ interface CharacterRangeCapable {
     fun hangulVowel() {
         range('\u314F', '\u3163')  // ㅏ-ㅣ
     }
+
+    // =========================================================================
+    // ASCII Character Range Shortcuts
+    // =========================================================================
+
+    /**
+     * Adds ASCII lowercase letters range (a-z).
+     */
+    fun asciiLowercase() = range('a', 'z')
+
+    /**
+     * Adds ASCII uppercase letters range (A-Z).
+     */
+    fun asciiUppercase() = range('A', 'Z')
+
+    /**
+     * Adds ASCII digit range (0-9).
+     * Unlike [digit] which uses `\d` (may include unicode digits),
+     * this explicitly matches only ASCII digits 0-9.
+     */
+    fun asciiDigit() = range('0', '9')
+
+    /**
+     * Adds all ASCII letters (a-zA-Z).
+     */
+    fun asciiLetter() {
+        asciiLowercase()
+        asciiUppercase()
+    }
+
+    /**
+     * Adds ASCII alphanumeric characters (a-zA-Z0-9).
+     */
+    fun asciiAlphanumeric() {
+        asciiLetter()
+        asciiDigit()
+    }
+
+    /**
+     * Adds hexadecimal digit characters (0-9a-fA-F).
+     */
+    fun hexDigit() {
+        asciiDigit()
+        range('a', 'f')
+        range('A', 'F')
+    }
+
+    // =========================================================================
+    // Control Characters
+    // =========================================================================
+
+    /**
+     * Appends a tab character (`\t`).
+     */
+    fun tab() = appendRaw("\\t")
+
+    /**
+     * Appends a newline character (`\n`).
+     */
+    fun newline() = appendRaw("\\n")
+
+    /**
+     * Appends a carriage return character (`\r`).
+     */
+    fun carriageReturn() = appendRaw("\\r")
+
+    /**
+     * Appends a form feed character (`\f`).
+     */
+    fun formFeed() = appendRaw("\\f")
+
+    /**
+     * Appends an alert/bell character (`\a`).
+     */
+    fun alert() = appendRaw("\\a")
+
+    /**
+     * Appends an escape character (`\e`).
+     */
+    fun escape() = appendRaw("\\e")
+
+    // =========================================================================
+    // ASCII Builder
+    // =========================================================================
+
+    /**
+     * Adds ASCII character ranges using a builder.
+     *
+     * This provides a convenient DSL for combining ASCII ranges.
+     *
+     * Example:
+     * ```kotlin
+     * charClass {
+     *     ascii {
+     *         lower()    // a-z
+     *         upper()    // A-Z
+     *     }
+     *     chars("_")
+     * }
+     * // Result: [a-zA-Z_]
+     * ```
+     *
+     * @param block The builder block for specifying ASCII ranges.
+     * @since 0.1.0
+     */
+    fun ascii(block: AsciiBuilder.() -> Unit) {
+        val builder = AsciiBuilder(this)
+        builder.block()
+    }
 }
 
 /**
@@ -375,15 +494,9 @@ class RegexBuilder : CharacterRangeCapable {
     }
 
     /**
+     * Implementation of [CharacterRangeCapable.appendRaw].
      * Appends a raw regex pattern without escaping.
      * Use with caution - the pattern is added exactly as provided.
-     *
-     * @param pattern The raw regex pattern string.
-     */
-    fun raw(pattern: String) = append(pattern)
-
-    /**
-     * Implementation of [CharacterRangeCapable.appendRaw].
      */
     override fun appendRaw(pattern: String) = append(pattern)
 
@@ -443,77 +556,52 @@ class RegexBuilder : CharacterRangeCapable {
      */
     fun anyChar() = append(".")
 
-    // digit(), nonDigit(), whitespace(), nonWhitespace(), wordChar(), nonWordChar()
-    // are inherited from CharacterRangeCapable interface
-
-    /**
-     * Appends a tab character (`\t`).
-     */
-    fun tab() = append("\\t")
-
-    /**
-     * Appends a newline character (`\n`).
-     */
-    fun newline() = append("\\n")
-
-    /**
-     * Appends a carriage return character (`\r`).
-     */
-    fun carriageReturn() = append("\\r")
-
-    /**
-     * Appends a form feed character (`\f`).
-     */
-    fun formFeed() = append("\\f")
-
-    /**
-     * Appends an alert/bell character (`\a`).
-     */
-    fun alert() = append("\\a")
-
-    /**
-     * Appends an escape character (`\e`).
-     */
-    fun escape() = append("\\e")
-
     // =========================================================================
-    // Unicode Support
+    // ASCII Character Ranges (Override for proper character class wrapping)
     // =========================================================================
-
-    // Unicode support methods are inherited from CharacterRangeCapable interface:
-    // - unicodeProperty(), notUnicodeProperty()
-    // - unicodeScript(), unicodeBlock()
-    // - unicodeLetter(), unicodeUppercaseLetter(), unicodeLowercaseLetter()
-    // - unicodeNumber(), unicodePunctuation(), unicodeSymbol()
-
-    // =========================================================================
-    // ASCII Character Ranges
-    // =========================================================================
-
-    /**
-     * Matches ASCII lowercase letters (`[a-z]`).
-     */
-    fun asciiLowercase() = charClass { asciiLowercase() }
-
-    /**
-     * Matches ASCII uppercase letters (`[A-Z]`).
-     */
-    fun asciiUppercase() = charClass { asciiUppercase() }
 
     /**
      * Matches ASCII letters (`[a-zA-Z]`).
+     * Overrides interface default to wrap in a single character class.
      */
-    fun asciiLetter() = charClass { asciiLetter() }
+    override fun asciiLetter() = charClass { asciiLetter() }
 
     /**
      * Matches ASCII alphanumeric characters (`[a-zA-Z0-9]`).
+     * Overrides interface default to wrap in a single character class.
      */
-    fun asciiAlphanumeric() = charClass { asciiAlphanumeric() }
+    override fun asciiAlphanumeric() = charClass { asciiAlphanumeric() }
 
     /**
      * Matches hexadecimal digit characters (`[0-9a-fA-F]`).
+     * Overrides interface default to wrap in a single character class.
      */
-    fun hexDigit() = charClass { hexDigit() }
+    override fun hexDigit() = charClass { hexDigit() }
+
+    /**
+     * Creates a character class with ASCII character ranges using a builder.
+     * Overrides interface default to wrap in a single character class.
+     *
+     * Example:
+     * ```kotlin
+     * regex {
+     *     ascii {
+     *         lower()    // a-z
+     *         upper()    // A-Z
+     *     }
+     * }
+     * // Result: [a-zA-Z]
+     * ```
+     *
+     * @param block The builder block for specifying ASCII ranges.
+     * @since 0.1.0
+     */
+    override fun ascii(block: AsciiBuilder.() -> Unit) {
+        val charClassBuilder = CharClassBuilder()
+        val asciiBuilder = AsciiBuilder(charClassBuilder)
+        asciiBuilder.block()
+        append(charClassBuilder.build())
+    }
 
     // =========================================================================
     // Literals & Custom Sets
@@ -1066,6 +1154,59 @@ class RegexBuilder : CharacterRangeCapable {
 }
 
 /**
+ * Builder for ASCII character ranges within a character class.
+ *
+ * This builder provides a convenient DSL for adding ASCII character ranges.
+ * It can be used within [RegexBuilder.ascii] or [CharClassBuilder.ascii] blocks.
+ *
+ * Example:
+ * ```kotlin
+ * regex {
+ *     ascii {
+ *         lower()    // a-z
+ *         upper()    // A-Z
+ *     }
+ * }
+ * // Result: [a-zA-Z]
+ * ```
+ *
+ * @since 0.1.0
+ */
+@KregexDsl
+class AsciiBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+
+    /**
+     * Adds ASCII lowercase letters range (a-z).
+     */
+    fun lower() = delegate.asciiLowercase()
+
+    /**
+     * Adds ASCII uppercase letters range (A-Z).
+     */
+    fun upper() = delegate.asciiUppercase()
+
+    /**
+     * Adds all ASCII letters (a-zA-Z).
+     */
+    fun letter() = delegate.asciiLetter()
+
+    /**
+     * Adds ASCII digit characters (0-9).
+     */
+    fun digit() = delegate.asciiDigit()
+
+    /**
+     * Adds ASCII alphanumeric characters (a-zA-Z0-9).
+     */
+    fun alphanumeric() = delegate.asciiAlphanumeric()
+
+    /**
+     * Adds hexadecimal digit characters (0-9a-fA-F).
+     */
+    fun hexDigit() = delegate.hexDigit()
+}
+
+/**
  * Builder for constructing complex character classes.
  *
  * This class allows you to combine multiple ranges, individual characters,
@@ -1107,57 +1248,11 @@ class CharClassBuilder(private val negated: Boolean = false) : CharacterRangeCap
 
     /**
      * Implementation of [CharacterRangeCapable.appendRaw].
-     */
-    override fun appendRaw(pattern: String) {
-        buffer.append(pattern)
-    }
-
-    /**
      * Adds a raw pattern to the class without escaping.
      * Use with caution.
      */
-    fun raw(pattern: String) = appendRaw(pattern)
-
-    // digit(), nonDigit(), whitespace(), nonWhitespace(), wordChar(), nonWordChar(),
-    // unicodeProperty(), notUnicodeProperty() are inherited from CharacterRangeCapable interface
-
-    // =========================================================================
-    // ASCII Character Range Shortcuts
-    // =========================================================================
-
-    /**
-     * Adds ASCII lowercase letters range (a-z).
-     */
-    fun asciiLowercase() = range('a', 'z')
-
-    /**
-     * Adds ASCII uppercase letters range (A-Z).
-     */
-    fun asciiUppercase() = range('A', 'Z')
-
-    /**
-     * Adds all ASCII letters (a-zA-Z).
-     */
-    fun asciiLetter() {
-        asciiLowercase()
-        asciiUppercase()
-    }
-
-    /**
-     * Adds ASCII alphanumeric characters (a-zA-Z0-9).
-     */
-    fun asciiAlphanumeric() {
-        asciiLetter()
-        digit()
-    }
-
-    /**
-     * Adds hexadecimal digit characters (0-9a-fA-F).
-     */
-    fun hexDigit() {
-        digit()
-        range('a', 'f')
-        range('A', 'F')
+    override fun appendRaw(pattern: String) {
+        buffer.append(pattern)
     }
 
     /**

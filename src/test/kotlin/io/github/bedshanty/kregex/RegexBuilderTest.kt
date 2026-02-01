@@ -280,8 +280,122 @@ class RegexBuilderTest {
         assertEquals("[a-z]", regex { asciiLowercase() }.pattern)
         assertEquals("[A-Z]", regex { asciiUppercase() }.pattern)
         assertEquals("[a-zA-Z]", regex { asciiLetter() }.pattern)
-        assertEquals("[a-zA-Z\\d]", regex { asciiAlphanumeric() }.pattern)
-        assertEquals("[\\da-fA-F]", regex { hexDigit() }.pattern)
+        assertEquals("[a-zA-Z0-9]", regex { asciiAlphanumeric() }.pattern)
+        assertEquals("[0-9a-fA-F]", regex { hexDigit() }.pattern)
+    }
+
+    // =========================================================================
+    // ASCII Block Tests
+    // =========================================================================
+
+    @Test
+    fun `ascii block with lower generates correct pattern`() {
+        val pattern = regex {
+            ascii { lower() }
+        }
+        assertEquals("[a-z]", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("z"))
+        assertFalse(pattern.matches("A"))
+        assertFalse(pattern.matches("1"))
+    }
+
+    @Test
+    fun `ascii block with upper generates correct pattern`() {
+        val pattern = regex {
+            ascii { upper() }
+        }
+        assertEquals("[A-Z]", pattern.pattern)
+        assertTrue(pattern.matches("A"))
+        assertTrue(pattern.matches("Z"))
+        assertFalse(pattern.matches("a"))
+        assertFalse(pattern.matches("1"))
+    }
+
+    @Test
+    fun `ascii block with lower and upper generates correct pattern`() {
+        val pattern = regex {
+            ascii {
+                lower()
+                upper()
+            }
+        }
+        assertEquals("[a-zA-Z]", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("Z"))
+        assertFalse(pattern.matches("1"))
+    }
+
+    @Test
+    fun `ascii block with letter generates correct pattern`() {
+        val pattern = regex {
+            ascii { letter() }
+        }
+        assertEquals("[a-zA-Z]", pattern.pattern)
+    }
+
+    @Test
+    fun `ascii block with digit generates correct pattern`() {
+        val pattern = regex {
+            ascii { digit() }
+        }
+        assertEquals("[0-9]", pattern.pattern)
+        assertTrue(pattern.matches("5"))
+        assertFalse(pattern.matches("a"))
+    }
+
+    @Test
+    fun `ascii block with alphanumeric generates correct pattern`() {
+        val pattern = regex {
+            ascii { alphanumeric() }
+        }
+        assertEquals("[a-zA-Z0-9]", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("Z"))
+        assertTrue(pattern.matches("5"))
+        assertFalse(pattern.matches("_"))
+    }
+
+    @Test
+    fun `ascii block with hexDigit generates correct pattern`() {
+        val pattern = regex {
+            ascii { hexDigit() }
+        }
+        assertEquals("[0-9a-fA-F]", pattern.pattern)
+        assertTrue(pattern.matches("0"))
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("F"))
+        assertFalse(pattern.matches("g"))
+    }
+
+    @Test
+    fun `ascii block in charClass generates correct pattern`() {
+        val pattern = regex {
+            charClass {
+                ascii {
+                    lower()
+                    upper()
+                }
+                chars("_")
+            }
+        }
+        assertEquals("[a-zA-Z_]", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("Z"))
+        assertTrue(pattern.matches("_"))
+        assertFalse(pattern.matches("1"))
+    }
+
+    @Test
+    fun `ascii block combined with quantifiers`() {
+        val pattern = regex {
+            startOfLine()
+            oneOrMore { ascii { letter() } }
+            endOfLine()
+        }
+        assertEquals("^[a-zA-Z]+$", pattern.pattern)
+        assertTrue(pattern.matches("HelloWorld"))
+        assertFalse(pattern.matches("Hello123"))
     }
 
     // =========================================================================
@@ -510,7 +624,7 @@ class RegexBuilderTest {
             }
             endOfLine()
         }
-        assertEquals("^[a-zA-Z\\d]+$", pattern.pattern)
+        assertEquals("^[a-zA-Z0-9]+$", pattern.pattern)
         assertTrue(pattern.matches("Hello123"))
         assertFalse(pattern.matches("Hello_123"))
     }
@@ -524,7 +638,7 @@ class RegexBuilderTest {
             }
             endOfLine()
         }
-        assertEquals("^[\\da-fA-F]+$", pattern.pattern)
+        assertEquals("^[0-9a-fA-F]+$", pattern.pattern)
         assertTrue(pattern.matches("DeadBeef"))
         assertTrue(pattern.matches("123abc"))
         assertFalse(pattern.matches("xyz"))
@@ -931,9 +1045,9 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `raw appends pattern without escaping`() {
+    fun `appendRaw appends pattern without escaping`() {
         val pattern = regex {
-            raw("[a-z]+")
+            appendRaw("[a-z]+")
         }
         assertTrue(pattern.matches("hello"))
         assertFalse(pattern.matches("123"))
