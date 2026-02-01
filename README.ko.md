@@ -5,7 +5,6 @@
 [![CI](https://github.com/bedshanty/kregex/actions/workflows/ci.yml/badge.svg)](https://github.com/bedshanty/kregex/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bedshanty/kregex)](https://central.sonatype.com/artifact/io.github.bedshanty/kregex)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Kotlin](https://img.shields.io/badge/kotlin-2.1.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 
 **Kregex**는 정규 표현식을 읽기 쉽고, 타입 안전(Type-safe)하게 작성할 수 있는 Kotlin DSL 라이브러리입니다.
 
@@ -13,6 +12,7 @@
 
 ## 특징
 
+- **100% Java/Kotlin 정규식 문법 지원** - `java.util.regex.Pattern`과 완벽 호환
 - **타입 안전 DSL** - Kotlin의 DSL 마커를 활용한 컴파일 타임 안전성
 - **가독성 높은 패턴** - 자체 문서화되는 정규식 구성
 - **완전한 정규식 지원** - 앵커, 문자 클래스, 수량자, 전후방 탐색, 역참조
@@ -28,7 +28,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.github.bedshanty:kregex:0.1.0")
+    implementation("io.github.bedshanty:kregex:0.2.0")
 }
 ```
 
@@ -36,7 +36,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'io.github.bedshanty:kregex:0.1.0'
+    implementation 'io.github.bedshanty:kregex:0.2.0'
 }
 ```
 
@@ -46,7 +46,7 @@ dependencies {
 <dependency>
     <groupId>io.github.bedshanty</groupId>
     <artifactId>kregex</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -112,7 +112,7 @@ println(자모패턴.matches("ㅠㅠ"))    // true
 // 한글 + 숫자 조합
 val 혼합패턴 = regex {
     oneOrMore {
-        charClass {
+        anyOf {
             hangul()
             hangulJamo()
             digit()
@@ -223,7 +223,7 @@ val URL패턴 = regex {
     }
     literal("://")
     capture("도메인") {
-        oneOrMore { charClass { wordChar(); chars(".-") } }
+        oneOrMore { anyOf { wordChar(); chars(".-") } }
     }
     optional {
         capture("포트") {
@@ -233,7 +233,7 @@ val URL패턴 = regex {
     }
     optional {
         capture("경로") {
-            zeroOrMore { charClass { wordChar(); chars("/.-") } }
+            zeroOrMore { anyOf { wordChar(); chars("/.-") } }
         }
     }
     endOfLine()
@@ -304,20 +304,53 @@ val 원화숫자 = regex {
 | `endOfInput()` | `\z` | 입력의 끝 |
 | `wordBoundary()` | `\b` | 단어 경계 |
 | `nonWordBoundary()` | `\B` | 비단어 경계 |
+| `line { }` | `^...$` | 줄 시작/끝 앵커로 감싸기 |
+| `input { }` | `\A...\z` | 입력 시작/끝 앵커로 감싸기 |
+
+#### line & input 블록
+
+앵커를 수동으로 추가하는 대신 편의 블록을 사용하세요:
+
+```kotlin
+// 기존 방식
+regex {
+    startOfLine()
+    oneOrMore { digit() }
+    endOfLine()
+}
+
+// 새로운 방식
+regex {
+    line { oneOrMore { digit() } }
+}
+// 결과: ^\d+$
+
+regex {
+    input { oneOrMore { digit() } }
+}
+// 결과: \A\d+\z
+```
 
 ### 문자 클래스
 
-| 메서드 | 패턴 | 설명                      |
-|--------|------|-------------------------|
-| `anyChar()` | `.` | 모든 문자 (줄바꿈 제외)          |
-| `digit()` | `\d` | 숫자 (0-9)                |
-| `nonDigit()` | `\D` | 숫자 제외                   |
-| `whitespace()` | `\s` | 공백 문자                   |
-| `nonWhitespace()` | `\S` | 공백 문자 제외                |
+| 메서드 | 패턴 | 설명 |
+|--------|------|------|
+| `anyChar()` | `.` | 모든 문자 (줄바꿈 제외) |
+| `digit()` | `\d` | 숫자 (유니코드 숫자 포함 가능) |
+| `asciiDigit()` | `[0-9]` | ASCII 숫자만 (0-9) |
+| `nonDigit()` | `\D` | 숫자 제외 |
+| `whitespace()` | `\s` | 공백 문자 |
+| `nonWhitespace()` | `\S` | 공백 문자 제외 |
 | `wordChar()` | `\w` | 단어 문자 (a-z, A-Z, 0-9, _) |
-| `nonWordChar()` | `\W` | 단어 문자 제외                |
-| `tab()` | `\t` | 탭 문자                    |
-| `newline()` | `\n` | 줄바꿈 문자                  |
+| `nonWordChar()` | `\W` | 단어 문자 제외 |
+| `tab()` | `\t` | 탭 문자 |
+| `newline()` | `\n` | 줄바꿈 문자 |
+| `carriageReturn()` | `\r` | 캐리지 리턴 |
+| `formFeed()` | `\f` | 폼 피드 |
+| `alert()` | `\a` | 경고/벨 문자 |
+| `escape()` | `\e` | 이스케이프 문자 |
+
+> **참고**: `digit()`는 `\d`를 사용하며 정규식 플래그에 따라 유니코드 숫자도 매칭할 수 있습니다. 정확히 ASCII 숫자(0-9)만 매칭하려면 `asciiDigit()`를 사용하세요.
 
 ### 유니코드 지원
 
@@ -336,9 +369,50 @@ val 원화숫자 = regex {
 | `literal("text")` | (이스케이프됨) | 텍스트 그대로 매칭 |
 | `char('x')` | (이스케이프됨) | 단일 문자 매칭 |
 | `anyOf("abc")` | `[abc]` | 이 문자들 중 하나 |
+| `anyOf { }` | `[...]` | 문자 클래스 빌더 (`charClass`의 별칭) |
 | `noneOf("abc")` | `[^abc]` | 이 문자들 제외 |
+| `noneOf { }` | `[^...]` | 부정 문자 클래스 빌더 (`negatedCharClass`의 별칭) |
 | `range('a', 'z')` | `[a-z]` | 문자 범위 |
-| `raw("pattern")` | (그대로) | Raw 패턴 (이스케이프 없음) |
+| `appendRaw("pattern")` | (그대로) | Raw 패턴 (이스케이프 없음) |
+
+### ASCII 문자 범위
+
+| 메서드 | 패턴 | 설명 |
+|--------|------|------|
+| `asciiLowercase()` | `[a-z]` | ASCII 소문자 |
+| `asciiUppercase()` | `[A-Z]` | ASCII 대문자 |
+| `asciiDigit()` | `[0-9]` | ASCII 숫자 |
+| `asciiLetter()` | `[a-zA-Z]` | ASCII 문자 |
+| `asciiAlphanumeric()` | `[a-zA-Z0-9]` | ASCII 영숫자 |
+| `hexDigit()` | `[0-9a-fA-F]` | 16진수 숫자 |
+
+#### ascii 블록
+
+`ascii { }` 블록으로 ASCII 범위를 조합하세요:
+
+```kotlin
+regex {
+    ascii {
+        lower()        // a-z
+        upper()        // A-Z
+        digit()        // 0-9
+    }
+}
+// 결과: [a-zA-Z0-9]
+
+regex {
+    ascii { hexDigit() }
+}
+// 결과: [0-9a-fA-F]
+```
+
+`ascii { }` 내에서 사용 가능한 메서드:
+- `lower()` - ASCII 소문자 (a-z)
+- `upper()` - ASCII 대문자 (A-Z)
+- `digit()` - ASCII 숫자 (0-9)
+- `letter()` - ASCII 문자 (a-zA-Z)
+- `alphanumeric()` - ASCII 영숫자 (a-zA-Z0-9)
+- `hexDigit()` - 16진수 숫자 (0-9a-fA-F)
 
 ### 그룹 & 캡처
 

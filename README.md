@@ -5,7 +5,6 @@
 [![CI](https://github.com/bedshanty/kregex/actions/workflows/ci.yml/badge.svg)](https://github.com/bedshanty/kregex/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bedshanty/kregex)](https://central.sonatype.com/artifact/io.github.bedshanty/kregex)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Kotlin](https://img.shields.io/badge/kotlin-2.1.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 
 **Kregex** is a Kotlin DSL library for building regular expressions in a readable, type-safe, and maintainable way.
 
@@ -13,6 +12,7 @@ Instead of writing cryptic regex patterns like `^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z
 
 ## Features
 
+- **100% Java/Kotlin regex syntax** - Full compatibility with `java.util.regex.Pattern`
 - **Type-safe DSL** - Compile-time safety with Kotlin's DSL markers
 - **Readable patterns** - Self-documenting regex construction
 - **Full regex support** - Anchors, character classes, quantifiers, lookarounds, back references
@@ -27,7 +27,7 @@ Instead of writing cryptic regex patterns like `^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z
 
 ```kotlin
 dependencies {
-    implementation("io.github.bedshanty:kregex:0.1.0")
+    implementation("io.github.bedshanty:kregex:0.2.0")
 }
 ```
 
@@ -35,7 +35,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'io.github.bedshanty:kregex:0.1.0'
+    implementation 'io.github.bedshanty:kregex:0.2.0'
 }
 ```
 
@@ -45,7 +45,7 @@ dependencies {
 <dependency>
     <groupId>io.github.bedshanty</groupId>
     <artifactId>kregex</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -71,14 +71,14 @@ println(digitPattern.matches("abc"))   // false
 val emailPattern = regex(RegexOption.IGNORE_CASE) {
     startOfLine()
     oneOrMore {
-        charClass {
+        anyOf {
             wordChar()
             chars(".-")
         }
     }
     literal("@")
     oneOrMore {
-        charClass {
+        anyOf {
             wordChar()
             chars("-")
         }
@@ -123,25 +123,25 @@ println(phonePattern.matches("+1 234-5678"))      // false (wrong format)
 ```kotlin
 val urlPattern = regex {
     startOfLine()
-    capture("protocol") {
+    captureAs("protocol") {
         either(
             { literal("https") },
             { literal("http") }
         )
     }
     literal("://")
-    capture("domain") {
-        oneOrMore { charClass { wordChar(); chars(".-") } }
+    captureAs("domain") {
+        oneOrMore { anyOf { wordChar(); chars(".-") } }
     }
     optional {
-        capture("port") {
+        captureAs("port") {
             literal(":")
             oneOrMore { digit() }
         }
     }
     optional {
-        capture("path") {
-            zeroOrMore { charClass { wordChar(); chars("/.-") } }
+        captureAs("path") {
+            zeroOrMore { anyOf { wordChar(); chars("/.-") } }
         }
     }
     endOfLine()
@@ -158,7 +158,7 @@ println(match.groups["port"]?.value)      // :8080
 ```kotlin
 val htmlTag = regex {
     literal("<")
-    capture("tag") { oneOrMore { wordChar() } }
+    captureAs("tag") { oneOrMore { wordChar() } }
     zeroOrMore { anyChar() }
     literal(">")
     zeroOrMoreLazy { anyChar() }
@@ -192,13 +192,40 @@ Use the standard `Regex.pattern` property to inspect the generated pattern strin
 | `endOfInput()` | `\z` | End of input |
 | `wordBoundary()` | `\b` | Word boundary |
 | `nonWordBoundary()` | `\B` | Non-word boundary |
+| `line { }` | `^...$` | Wraps with start/end of line anchors |
+| `input { }` | `\A...\z` | Wraps with start/end of input anchors |
+
+#### Line & Input Blocks
+
+Instead of manually adding anchors, use the convenience blocks:
+
+```kotlin
+// Before
+regex {
+    startOfLine()
+    oneOrMore { digit() }
+    endOfLine()
+}
+
+// After
+regex {
+    line { oneOrMore { digit() } }
+}
+// Result: ^\d+$
+
+regex {
+    input { oneOrMore { digit() } }
+}
+// Result: \A\d+\z
+```
 
 ### Character Classes
 
 | Method | Pattern | Description |
 |--------|---------|-------------|
 | `anyChar()` | `.` | Any character (except newline) |
-| `digit()` | `\d` | Digit (0-9) |
+| `digit()` | `\d` | Digit (may include unicode digits) |
+| `asciiDigit()` | `[0-9]` | ASCII digit only (0-9) |
 | `nonDigit()` | `\D` | Non-digit |
 | `whitespace()` | `\s` | Whitespace |
 | `nonWhitespace()` | `\S` | Non-whitespace |
@@ -206,6 +233,12 @@ Use the standard `Regex.pattern` property to inspect the generated pattern strin
 | `nonWordChar()` | `\W` | Non-word character |
 | `tab()` | `\t` | Tab character |
 | `newline()` | `\n` | Newline character |
+| `carriageReturn()` | `\r` | Carriage return |
+| `formFeed()` | `\f` | Form feed |
+| `alert()` | `\a` | Alert/bell character |
+| `escape()` | `\e` | Escape character |
+
+> **Note**: `digit()` uses `\d` which may match unicode digits depending on regex flags. Use `asciiDigit()` for strict ASCII digits (0-9).
 
 ### Unicode Support
 
@@ -228,9 +261,38 @@ Use the standard `Regex.pattern` property to inspect the generated pattern strin
 |--------|---------|-------------|
 | `asciiLowercase()` | `[a-z]` | ASCII lowercase letters |
 | `asciiUppercase()` | `[A-Z]` | ASCII uppercase letters |
+| `asciiDigit()` | `[0-9]` | ASCII digits |
 | `asciiLetter()` | `[a-zA-Z]` | ASCII letters |
 | `asciiAlphanumeric()` | `[a-zA-Z0-9]` | ASCII alphanumeric |
 | `hexDigit()` | `[0-9a-fA-F]` | Hexadecimal digits |
+
+#### ASCII Block
+
+Use `ascii { }` block for combining ASCII ranges:
+
+```kotlin
+regex {
+    ascii {
+        lower()        // a-z
+        upper()        // A-Z
+        digit()        // 0-9
+    }
+}
+// Result: [a-zA-Z0-9]
+
+regex {
+    ascii { hexDigit() }
+}
+// Result: [0-9a-fA-F]
+```
+
+Available methods inside `ascii { }`:
+- `lower()` - ASCII lowercase (a-z)
+- `upper()` - ASCII uppercase (A-Z)
+- `digit()` - ASCII digits (0-9)
+- `letter()` - ASCII letters (a-zA-Z)
+- `alphanumeric()` - ASCII alphanumeric (a-zA-Z0-9)
+- `hexDigit()` - Hexadecimal digits (0-9a-fA-F)
 
 ### Korean (Hangul) Support
 
@@ -252,11 +314,11 @@ val koreanPattern = regex {
 }
 println(koreanPattern.matches("안녕하세요"))  // true
 
-// Combine with other characters in charClass
+// Combine with other characters in anyOf
 val mixed = regex {
     oneOrMore {
-        charClass {
-            hangul()      // Works inside charClass too!
+        anyOf {
+            hangul()      // Works inside anyOf too!
             hangulJamo()  // Include Jamo as well
             digit()
         }
@@ -291,15 +353,17 @@ println(mixed.matches("가격1000ㅋㅋ"))  // true
 | `literal("text")` | (escaped) | Match text literally |
 | `char('x')` | (escaped) | Match single character |
 | `anyOf("abc")` | `[abc]` | Any of these characters |
+| `anyOf { }` | `[...]` | Character class builder (alias for `charClass`) |
 | `noneOf("abc")` | `[^abc]` | None of these characters |
+| `noneOf { }` | `[^...]` | Negated character class builder (alias for `negatedCharClass`) |
 | `range('a', 'z')` | `[a-z]` | Character range |
 | `notInRange('a', 'z')` | `[^a-z]` | Negated character range |
-| `raw("pattern")` | (as-is) | Raw pattern (no escaping) |
+| `appendRaw("pattern")` | (as-is) | Raw pattern (no escaping) |
 
 ### Character Class Builder
 
 ```kotlin
-charClass {
+anyOf {
     range('a', 'z')
     range('A', 'Z')
     chars("_-")
@@ -307,7 +371,7 @@ charClass {
 }
 // Results in: [a-zA-Z_\-\d]
 
-negatedCharClass {
+noneOf {
     range('0', '9')
 }
 // Results in: [^0-9]
@@ -319,20 +383,25 @@ negatedCharClass {
 |--------|---------|-------------|
 | `asciiLowercase()` | `a-z` | ASCII lowercase letters |
 | `asciiUppercase()` | `A-Z` | ASCII uppercase letters |
+| `asciiDigit()` | `0-9` | ASCII digits |
 | `asciiLetter()` | `a-zA-Z` | All ASCII letters |
 | `asciiAlphanumeric()` | `a-zA-Z0-9` | ASCII letters and digits |
 | `hexDigit()` | `0-9a-fA-F` | Hexadecimal digits |
 
 ```kotlin
-// Before
-charClass {
-    range('0', '9')
-    range('a', 'f')
-    range('A', 'F')
-}
+// Using shortcuts directly
+anyOf { hexDigit() }
+// Result: [0-9a-fA-F]
 
-// After
-charClass { hexDigit() }
+// Using ascii block inside charClass
+anyOf {
+    ascii {
+        lower()
+        digit()
+    }
+    chars("_")
+}
+// Result: [a-z0-9_]
 ```
 
 ### Groups & Capturing
@@ -340,7 +409,7 @@ charClass { hexDigit() }
 | Method | Pattern | Description |
 |--------|---------|-------------|
 | `capture { }` | `(...)` | Capturing group |
-| `capture("name") { }` | `(?<name>...)` | Named capturing group |
+| `captureAs("name") { }` | `(?<name>...)` | Named capturing group |
 | `group { }` | `(?:...)` | Non-capturing group |
 | `atomicGroup { }` | `(?>...)` | Atomic group (no backtracking) |
 
@@ -571,7 +640,7 @@ The library validates inputs and throws `IllegalArgumentException` for invalid p
 ```kotlin
 range('z', 'a')           // Error: Range start must be <= end
 repeat(-1) { digit() }    // Error: Repeat count must be non-negative
-capture("123") { }        // Error: Name must start with a letter
+captureAs("123") { }      // Error: Name must start with a letter
 backReference(0)          // Error: Group number must be >= 1
 ```
 
@@ -589,21 +658,21 @@ val pattern = Regex("^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z0-9-]+)\\.(?:[a-zA-Z]{2,6})
 val pattern = regex {
     startOfLine()
     oneOrMore {
-        charClass {
+        anyOf {
             asciiAlphanumeric()
             chars("._%-")
         }
     }
     literal("@")
     oneOrMore {
-        charClass {
+        anyOf {
             asciiAlphanumeric()
             chars("-")
         }
     }
     literal(".")
     repeat(2, 6) {
-        charClass { asciiLowercase() }
+        anyOf { asciiLowercase() }
     }
     endOfLine()
 }
