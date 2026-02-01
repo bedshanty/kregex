@@ -816,7 +816,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param name The name of the group (must be alphanumeric).
      * @throws IllegalArgumentException if name is empty or contains invalid characters.
      */
-    fun capture(name: String, block: RegexBuilder.() -> Unit) {
+    fun captureAs(name: String, block: RegexBuilder.() -> Unit) {
         require(name.isNotEmpty()) { "Capture group name cannot be empty" }
         require(name.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*$"))) {
             "Capture group name must start with a letter and contain only alphanumeric characters: '$name'"

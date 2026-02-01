@@ -118,12 +118,12 @@ fun RegexBuilder.httpUrl() {
  * ```
  */
 fun RegexBuilder.httpUrlWithCapture() {
-    capture("protocol") {
+    captureAs("protocol") {
         literal("http")
         optional { literal("s") }
     }
     literal("://")
-    capture("domain") {
+    captureAs("domain") {
         oneOrMore {
             anyOf {
                 wordChar()
@@ -132,13 +132,13 @@ fun RegexBuilder.httpUrlWithCapture() {
         }
     }
     optional {
-        capture("port") {
+        captureAs("port") {
             literal(":")
             oneOrMore { digit() }
         }
     }
     optional {
-        capture("path") {
+        captureAs("path") {
             oneOrMore {
                 anyOf {
                     wordChar()

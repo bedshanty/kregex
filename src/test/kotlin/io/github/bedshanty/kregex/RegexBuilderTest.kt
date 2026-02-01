@@ -745,11 +745,11 @@ class RegexBuilderTest {
     @Test
     fun `capture with name creates named capturing group`() {
         val pattern = regex {
-            capture("year") {
+            captureAs("year") {
                 repeat(4) { digit() }
             }
             literal("-")
-            capture("month") {
+            captureAs("month") {
                 repeat(2) { digit() }
             }
         }
@@ -762,19 +762,19 @@ class RegexBuilderTest {
     fun `capture name validation`() {
         assertFailsWith<IllegalArgumentException> {
             regex {
-                capture("") { literal("test") }
+                captureAs("") { literal("test") }
             }
         }
 
         assertFailsWith<IllegalArgumentException> {
             regex {
-                capture("123invalid") { literal("test") }
+                captureAs("123invalid") { literal("test") }
             }
         }
 
         assertFailsWith<IllegalArgumentException> {
             regex {
-                capture("invalid-name") { literal("test") }
+                captureAs("invalid-name") { literal("test") }
             }
         }
     }
@@ -815,7 +815,7 @@ class RegexBuilderTest {
     @Test
     fun `backReference by name`() {
         val pattern = regex {
-            capture("word") {
+            captureAs("word") {
                 oneOrMore { wordChar() }
             }
             whitespace()
@@ -1142,14 +1142,14 @@ class RegexBuilderTest {
     fun `URL pattern`() {
         val url = regex(RegexOption.IGNORE_CASE) {
             startOfLine()
-            capture("protocol") {
+            captureAs("protocol") {
                 either(
                     { literal("https") },
                     { literal("http") }
                 )
             }
             literal("://")
-            capture("domain") {
+            captureAs("domain") {
                 oneOrMore {
                     charClass {
                         wordChar()
@@ -1158,13 +1158,13 @@ class RegexBuilderTest {
                 }
             }
             optional {
-                capture("port") {
+                captureAs("port") {
                     literal(":")
                     oneOrMore { digit() }
                 }
             }
             optional {
-                capture("path") {
+                captureAs("path") {
                     zeroOrMore {
                         charClass {
                             wordChar()
@@ -1186,7 +1186,7 @@ class RegexBuilderTest {
     fun `HTML tag pattern with back reference`() {
         val htmlTag = regex {
             literal("<")
-            capture("tag") {
+            captureAs("tag") {
                 oneOrMore { wordChar() }
             }
             zeroOrMore { anyChar() }
