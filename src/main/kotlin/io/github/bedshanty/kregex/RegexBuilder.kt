@@ -546,6 +546,42 @@ class RegexBuilder : CharacterRangeCapable {
      */
     fun nonWordBoundary() = append("\\B")
 
+    /**
+     * Wraps the block with start-of-line (`^`) and end-of-line (`$`) anchors.
+     * Use this to match an entire line.
+     *
+     * Example:
+     * ```kotlin
+     * regex {
+     *     line { literal("hello") }
+     * }
+     * // Results in: ^hello$
+     * ```
+     */
+    fun line(block: RegexBuilder.() -> Unit) {
+        startOfLine()
+        this.block()
+        endOfLine()
+    }
+
+    /**
+     * Wraps the block with start-of-input (`\A`) and end-of-input (`\z`) anchors.
+     * Use this to match the entire input.
+     *
+     * Example:
+     * ```kotlin
+     * regex {
+     *     input { literal("hello") }
+     * }
+     * // Results in: \Ahello\z
+     * ```
+     */
+    fun input(block: RegexBuilder.() -> Unit) {
+        startOfInput()
+        this.block()
+        endOfInput()
+    }
+
     // =========================================================================
     // Character Classes (Predefined)
     // =========================================================================
