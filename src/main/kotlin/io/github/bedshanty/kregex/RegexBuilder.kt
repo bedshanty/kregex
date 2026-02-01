@@ -633,6 +633,21 @@ class RegexBuilder : CharacterRangeCapable {
     fun anyOf(chars: String) = append("[${escapeForCharClass(chars)}]")
 
     /**
+     * Creates a character class using a builder.
+     * Alias for [charClass].
+     *
+     * Example:
+     * ```kotlin
+     * anyOf {
+     *     range('a', 'z')
+     *     digit()
+     * }
+     * // Results in: [a-z\d]
+     * ```
+     */
+    fun anyOf(block: CharClassBuilder.() -> Unit) = charClass(block)
+
+    /**
      * Appends a negated character set (`[^...]`).
      * Matches any character NOT in the given set.
      * Special characters inside the set are automatically escaped.
@@ -640,6 +655,20 @@ class RegexBuilder : CharacterRangeCapable {
      * @param chars The characters to exclude (e.g., "abc" -> "[^abc]").
      */
     fun noneOf(chars: String) = append("[^${escapeForCharClass(chars)}]")
+
+    /**
+     * Creates a negated character class using a builder.
+     * Alias for [negatedCharClass].
+     *
+     * Example:
+     * ```kotlin
+     * noneOf {
+     *     range('0', '9')
+     * }
+     * // Results in: [^0-9]
+     * ```
+     */
+    fun noneOf(block: CharClassBuilder.() -> Unit) = negatedCharClass(block)
 
     /**
      * Appends a character range (`[a-z]`).

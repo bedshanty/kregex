@@ -30,7 +30,7 @@ package io.github.bedshanty.kregex
 fun RegexBuilder.email() {
     // Local part: word chars, dots, and special chars
     oneOrMore {
-        charClass {
+        anyOf {
             wordChar()
             chars(".%+-")
         }
@@ -38,7 +38,7 @@ fun RegexBuilder.email() {
     literal("@")
     // Domain part (including subdomains)
     oneOrMore {
-        charClass {
+        anyOf {
             wordChar()
             chars(".-")
         }
@@ -46,7 +46,7 @@ fun RegexBuilder.email() {
     literal(".")
     // TLD (2-63 chars)
     repeat(2, 63) {
-        charClass { asciiLetter() }
+        anyOf { asciiLetter() }
     }
 }
 
@@ -75,7 +75,7 @@ fun RegexBuilder.httpUrl() {
     literal("://")
     // Domain
     oneOrMore {
-        charClass {
+        anyOf {
             wordChar()
             chars(".-")
         }
@@ -87,7 +87,7 @@ fun RegexBuilder.httpUrl() {
     }
     // Optional path and query
     zeroOrMore {
-        charClass {
+        anyOf {
             wordChar()
             chars("/.-_~:?#@!$&'()+,;=%")
         }
@@ -125,7 +125,7 @@ fun RegexBuilder.httpUrlWithCapture() {
     literal("://")
     capture("domain") {
         oneOrMore {
-            charClass {
+            anyOf {
                 wordChar()
                 chars(".-")
             }
@@ -140,7 +140,7 @@ fun RegexBuilder.httpUrlWithCapture() {
     optional {
         capture("path") {
             oneOrMore {
-                charClass {
+                anyOf {
                     wordChar()
                     chars("/.-_~:?#@!$&'()+,;=%")
                 }
@@ -222,13 +222,13 @@ fun RegexBuilder.ipv4Strict() {
 fun RegexBuilder.ipv6() {
     // First group
     repeat(1, 4) {
-        charClass { hexDigit() }
+        anyOf { hexDigit() }
     }
     // Remaining 7 groups
     repeat(7) {
         literal(":")
         repeat(1, 4) {
-            charClass { hexDigit() }
+            anyOf { hexDigit() }
         }
     }
 }
@@ -397,7 +397,7 @@ fun RegexBuilder.isoDateTime() {
  */
 fun RegexBuilder.uuid() {
     val hexChar: RegexBuilder.() -> Unit = {
-        charClass { hexDigit() }
+        anyOf { hexDigit() }
     }
     repeat(8) { hexChar() }
     literal("-")
@@ -430,21 +430,21 @@ fun RegexBuilder.hexColor() {
         {
             // #RRGGBB or #RRGGBBAA
             repeat(6) {
-                charClass { hexDigit() }
+                anyOf { hexDigit() }
             }
             optional {
                 repeat(2) {
-                    charClass { hexDigit() }
+                    anyOf { hexDigit() }
                 }
             }
         },
         {
             // #RGB or #RGBA
             repeat(3) {
-                charClass { hexDigit() }
+                anyOf { hexDigit() }
             }
             optional {
-                charClass { hexDigit() }
+                anyOf { hexDigit() }
             }
         }
     )
@@ -466,7 +466,7 @@ fun RegexBuilder.hexColor() {
  */
 fun RegexBuilder.slug() {
     oneOrMore {
-        charClass {
+        anyOf {
             asciiLowercase()
             digit()
             chars("-")
@@ -501,7 +501,7 @@ fun RegexBuilder.semver() {
     optional {
         literal("-")
         oneOrMore {
-            charClass {
+            anyOf {
                 asciiAlphanumeric()
                 chars(".-")
             }
@@ -511,7 +511,7 @@ fun RegexBuilder.semver() {
     optional {
         literal("+")
         oneOrMore {
-            charClass {
+            anyOf {
                 asciiAlphanumeric()
                 chars(".-")
             }
