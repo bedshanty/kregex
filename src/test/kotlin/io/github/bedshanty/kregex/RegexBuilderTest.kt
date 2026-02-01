@@ -457,6 +457,45 @@ class RegexBuilderTest {
     }
 
     @Test
+    fun `anyOf block creates character class`() {
+        val pattern = regex {
+            startOfLine()
+            oneOrMore {
+                anyOf {
+                    range('a', 'z')
+                    digit()
+                }
+            }
+            endOfLine()
+        }
+        assertEquals("^[a-z\\d]+$", pattern.pattern)
+        assertTrue(pattern.matches("hello123"))
+        assertTrue(pattern.matches("abc"))
+        assertTrue(pattern.matches("456"))
+        assertFalse(pattern.matches("ABC"))
+        assertFalse(pattern.matches("hello_world"))
+    }
+
+    @Test
+    fun `noneOf block creates negated character class`() {
+        val pattern = regex {
+            startOfLine()
+            oneOrMore {
+                noneOf {
+                    range('0', '9')
+                    whitespace()
+                }
+            }
+            endOfLine()
+        }
+        assertEquals("^[^0-9\\s]+$", pattern.pattern)
+        assertTrue(pattern.matches("hello"))
+        assertTrue(pattern.matches("ABC"))
+        assertFalse(pattern.matches("hello123"))
+        assertFalse(pattern.matches("hello world"))
+    }
+
+    @Test
     fun `range creates character range`() {
         val pattern = regex {
             startOfLine()
