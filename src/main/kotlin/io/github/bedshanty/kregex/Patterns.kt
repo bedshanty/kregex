@@ -51,6 +51,98 @@ fun RegexBuilder.email() {
 }
 
 // =============================================================================
+// Password Patterns
+// =============================================================================
+
+/**
+ * Default set of special characters allowed in passwords.
+ * Based on OWASP Password Special Characters recommendation.
+ * @see <a href="https://owasp.org/www-community/password-special-characters">OWASP Password Special Characters</a>
+ */
+private const val DEFAULT_PASSWORD_SPECIAL_CHARS = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+
+/**
+ * Appends a password validation pattern with configurable rules.
+ * Only allows ASCII letters (a-z, A-Z), digits (0-9), and specified special characters.
+ *
+ * @param minLength Minimum password length (default: 8)
+ * @param maxLength Maximum password length (default: 256, null = no limit)
+ * @param requireUppercase Require at least one uppercase letter
+ * @param requireLowercase Require at least one lowercase letter
+ * @param requireDigit Require at least one digit
+ * @param requireSpecialChar Require at least one special character
+ * @param allowedSpecialChars Set of special characters allowed in password
+ *
+ * Example:
+ * ```kotlin
+ * val pattern = regex {
+ *     line {
+ *         password(
+ *             minLength = 8,
+ *             maxLength = 20,
+ *             requireUppercase = true,
+ *             requireLowercase = true,
+ *             requireDigit = true,
+ *             requireSpecialChar = true
+ *         )
+ *     }
+ * }
+ * assertTrue(pattern.matches("Password1!"))
+ * assertFalse(pattern.matches("password"))  // missing uppercase, digit, special
+ * ```
+ */
+fun RegexBuilder.password(
+    minLength: Int = 8,
+    maxLength: Int? = 256,
+    requireUppercase: Boolean = false,
+    requireLowercase: Boolean = false,
+    requireDigit: Boolean = false,
+    requireSpecialChar: Boolean = false,
+    allowedSpecialChars: String = DEFAULT_PASSWORD_SPECIAL_CHARS
+) {
+    require(minLength >= 1) { "minLength must be at least 1" }
+    require(maxLength == null || maxLength >= minLength) { "maxLength must be >= minLength" }
+
+    if (requireUppercase) {
+        lookAhead {
+            zeroOrMore { anyChar() }
+            asciiUppercase()
+        }
+    }
+    if (requireLowercase) {
+        lookAhead {
+            zeroOrMore { anyChar() }
+            asciiLowercase()
+        }
+    }
+    if (requireDigit) {
+        lookAhead {
+            zeroOrMore { anyChar() }
+            digit()
+        }
+    }
+    if (requireSpecialChar) {
+        lookAhead {
+            zeroOrMore { anyChar() }
+            anyOf(allowedSpecialChars)
+        }
+    }
+
+    val allowedChars: RegexBuilder.() -> Unit = {
+        anyOf {
+            asciiAlphanumeric()
+            chars(allowedSpecialChars)
+        }
+    }
+
+    if (maxLength != null) {
+        repeat(minLength, maxLength) { allowedChars() }
+    } else {
+        atLeast(minLength) { allowedChars() }
+    }
+}
+
+// =============================================================================
 // URL Patterns
 // =============================================================================
 
@@ -633,4 +725,3 @@ fun RegexBuilder.singleQuotedString() {
     }
     literal("'")
 }
-

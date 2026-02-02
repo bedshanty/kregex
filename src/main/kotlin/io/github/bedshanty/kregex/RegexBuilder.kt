@@ -511,13 +511,14 @@ interface CharacterRangeCapable {
 
 /**
  * Escapes special characters for use inside a character class.
- * Characters that need escaping: ] \ ^ -
+ * Characters that need escaping: [ ] \ ^ -
  */
 private fun escapeForCharClass(chars: String): String {
     val result = StringBuilder()
     for (c in chars) {
         when (c) {
             '\\' -> result.append("\\\\")
+            '[' -> result.append("\\[")
             ']' -> result.append("\\]")
             '^' -> result.append("\\^")
             '-' -> result.append("\\-")
