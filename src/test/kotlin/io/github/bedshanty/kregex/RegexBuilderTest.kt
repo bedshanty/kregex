@@ -1805,4 +1805,238 @@ class RegexBuilderTest {
         assertTrue(pattern.matches(".,;:"))
         assertFalse(pattern.matches("abc"))
     }
+
+    // =========================================================================
+    // Builder Block Tests (posix{}, unicode{}, hangul{})
+    // =========================================================================
+
+    @Test
+    fun `posix builder in RegexBuilder creates character class`() {
+        val pattern = regex {
+            posix {
+                alnum()
+                punct()
+            }
+        }
+        assertEquals("[\\p{Alnum}\\p{Punct}]", pattern.pattern)
+    }
+
+    @Test
+    fun `posix builder in charClass does not double wrap`() {
+        val pattern = regex {
+            charClass {
+                posix {
+                    alpha()
+                    digit()
+                }
+                chars("_")
+            }
+        }
+        assertEquals("[\\p{Alpha}\\p{Digit}_]", pattern.pattern)
+    }
+
+    @Test
+    fun `posix builder all methods`() {
+        val pattern = regex {
+            charClass {
+                posix {
+                    alnum()
+                    alpha()
+                    ascii()
+                    blank()
+                    cntrl()
+                    digit()
+                    graph()
+                    lower()
+                    print()
+                    punct()
+                    space()
+                    upper()
+                    xdigit()
+                }
+            }
+        }
+        val expected = "[\\p{Alnum}\\p{Alpha}\\p{ASCII}\\p{Blank}\\p{Cntrl}\\p{Digit}" +
+                "\\p{Graph}\\p{Lower}\\p{Print}\\p{Punct}\\p{Space}\\p{Upper}\\p{XDigit}]"
+        assertEquals(expected, pattern.pattern)
+    }
+
+    @Test
+    fun `unicode builder in RegexBuilder creates character class`() {
+        val pattern = regex {
+            unicode {
+                letter()
+                number()
+            }
+        }
+        assertEquals("[\\p{L}\\p{N}]", pattern.pattern)
+    }
+
+    @Test
+    fun `unicode builder in charClass does not double wrap`() {
+        val pattern = regex {
+            charClass {
+                unicode {
+                    letter()
+                    punctuation()
+                }
+                chars("-")
+            }
+        }
+        assertEquals("[\\p{L}\\p{P}\\-]", pattern.pattern)
+    }
+
+    @Test
+    fun `unicode builder all methods`() {
+        val pattern = regex {
+            charClass {
+                unicode {
+                    property("L")
+                    notProperty("N")
+                    script("Han")
+                    block("BasicLatin")
+                    letter()
+                    uppercaseLetter()
+                    lowercaseLetter()
+                    number()
+                    punctuation()
+                    symbol()
+                }
+            }
+        }
+        val expected = "[\\p{L}\\P{N}\\p{IsHan}\\p{InBasicLatin}\\p{L}\\p{Lu}\\p{Ll}\\p{N}\\p{P}\\p{S}]"
+        assertEquals(expected, pattern.pattern)
+    }
+
+    @Test
+    fun `unicode builder with script matches Han characters`() {
+        val pattern = regex {
+            startOfLine()
+            oneOrMore {
+                unicode {
+                    script("Han")
+                }
+            }
+            endOfLine()
+        }
+        assertTrue(pattern.matches("漢字"))
+        assertTrue(pattern.matches("中文"))
+        assertFalse(pattern.matches("한글"))
+        assertFalse(pattern.matches("abc"))
+    }
+
+    @Test
+    fun `hangul builder in RegexBuilder creates character class`() {
+        val pattern = regex {
+            hangul {
+                syllable()
+                consonant()
+            }
+        }
+        assertEquals("[가-힣ㄱ-ㅎ]", pattern.pattern)
+    }
+
+    @Test
+    fun `hangul builder in charClass does not double wrap`() {
+        val pattern = regex {
+            charClass {
+                hangul {
+                    syllable()
+                    jamo()
+                }
+                digit()
+            }
+        }
+        assertEquals("[가-힣ㄱ-ㅣ\\d]", pattern.pattern)
+    }
+
+    @Test
+    fun `hangul builder all methods`() {
+        val pattern = regex {
+            charClass {
+                hangul {
+                    syllable()
+                    jamo()
+                    consonant()
+                    vowel()
+                }
+            }
+        }
+        assertEquals("[가-힣ㄱ-ㅣㄱ-ㅎㅏ-ㅣ]", pattern.pattern)
+    }
+
+    @Test
+    fun `hangul builder matches Korean text`() {
+        val pattern = regex {
+            startOfLine()
+            oneOrMore {
+                hangul {
+                    syllable()
+                    consonant()
+                }
+            }
+            endOfLine()
+        }
+        assertTrue(pattern.matches("안녕하세요"))
+        assertTrue(pattern.matches("ㅋㅋㅋ"))
+        assertTrue(pattern.matches("가나다ㄱㄴㄷ"))
+        assertFalse(pattern.matches("ㅏㅓㅗ"))  // vowels only
+        assertFalse(pattern.matches("hello"))
+    }
+
+    @Test
+    fun `hangul builder vowel only`() {
+        val pattern = regex {
+            startOfLine()
+            oneOrMore {
+                hangul {
+                    vowel()
+                }
+            }
+            endOfLine()
+        }
+        assertTrue(pattern.matches("ㅏㅓㅗㅜ"))
+        assertFalse(pattern.matches("ㄱㄴㄷ"))
+        assertFalse(pattern.matches("가나다"))
+    }
+
+    @Test
+    fun `combined builders in charClass`() {
+        val pattern = regex {
+            charClass {
+                hangul {
+                    syllable()
+                }
+                unicode {
+                    script("Han")
+                }
+                ascii {
+                    letter()
+                }
+            }
+        }
+        assertEquals("[가-힣\\p{IsHan}a-zA-Z]", pattern.pattern)
+    }
+
+    @Test
+    fun `builders with quantifiers`() {
+        val pattern = regex {
+            oneOrMore {
+                posix {
+                    alnum()
+                }
+            }
+            zeroOrMore {
+                unicode {
+                    punctuation()
+                }
+            }
+            optional {
+                hangul {
+                    syllable()
+                }
+            }
+        }
+        assertEquals("[\\p{Alnum}]+[\\p{P}]*[가-힣]?", pattern.pattern)
+    }
 }
