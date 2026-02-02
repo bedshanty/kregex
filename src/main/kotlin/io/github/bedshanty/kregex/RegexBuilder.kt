@@ -287,11 +287,11 @@ interface CharacterRangeCapable {
      *
      * Example:
      * ```kotlin
-     * regex { oneOrMore { hangul() } }  // [가-힣]+
-     * charClass { hangul(); digit() }   // [가-힣\d]
+     * regex { oneOrMore { hangulSyllable() } }  // [가-힣]+
+     * charClass { hangulSyllable(); digit() }   // [가-힣\d]
      * ```
      */
-    fun hangul() {
+    fun hangulSyllable() {
         range('\uAC00', '\uD7A3')  // 가-힣
     }
 
@@ -427,10 +427,84 @@ interface CharacterRangeCapable {
      * ```
      *
      * @param block The builder block for specifying ASCII ranges.
-     * @since 0.1.0
+     * @since 0.2.0
      */
     fun ascii(block: AsciiBuilder.() -> Unit) {
         val builder = AsciiBuilder(this)
+        builder.block()
+    }
+
+    // =========================================================================
+    // Builder Blocks for Character Class Groups
+    // =========================================================================
+
+    /**
+     * Adds POSIX character classes using a builder.
+     *
+     * This provides a convenient DSL for combining POSIX classes.
+     *
+     * Example:
+     * ```kotlin
+     * charClass {
+     *     posix {
+     *         alnum()    // \p{Alnum}
+     *         punct()    // \p{Punct}
+     *     }
+     * }
+     * ```
+     *
+     * @param block The builder block for specifying POSIX classes.
+     * @since 0.3.0
+     */
+    fun posix(block: PosixBuilder.() -> Unit) {
+        val builder = PosixBuilder(this)
+        builder.block()
+    }
+
+    /**
+     * Adds Unicode character classes using a builder.
+     *
+     * This provides a convenient DSL for combining Unicode classes.
+     *
+     * Example:
+     * ```kotlin
+     * charClass {
+     *     unicode {
+     *         letter()       // \p{L}
+     *         number()       // \p{N}
+     *         script("Han")  // \p{IsHan}
+     *     }
+     * }
+     * ```
+     *
+     * @param block The builder block for specifying Unicode classes.
+     * @since 0.3.0
+     */
+    fun unicode(block: UnicodeBuilder.() -> Unit) {
+        val builder = UnicodeBuilder(this)
+        builder.block()
+    }
+
+    /**
+     * Adds Hangul (Korean) character ranges using a builder.
+     *
+     * This provides a convenient DSL for combining Hangul ranges.
+     *
+     * Example:
+     * ```kotlin
+     * charClass {
+     *     hangul {
+     *         syllable()    // 가-힣 (완성형)
+     *         consonant()   // ㄱ-ㅎ (자음)
+     *     }
+     * }
+     * ```
+     *
+     * @param block The builder block for specifying Hangul ranges.
+     * @since 0.3.0
+     */
+    fun hangul(block: HangulBuilder.() -> Unit) {
+        val builder = HangulBuilder(this)
         builder.block()
     }
 }
@@ -630,12 +704,88 @@ class RegexBuilder : CharacterRangeCapable {
      * ```
      *
      * @param block The builder block for specifying ASCII ranges.
-     * @since 0.1.0
+     * @since 0.2.0
      */
     override fun ascii(block: AsciiBuilder.() -> Unit) {
         val charClassBuilder = CharClassBuilder()
         val asciiBuilder = AsciiBuilder(charClassBuilder)
         asciiBuilder.block()
+        append(charClassBuilder.build())
+    }
+
+    /**
+     * Creates a character class with POSIX character classes using a builder.
+     * Overrides interface default to wrap in a single character class.
+     *
+     * Example:
+     * ```kotlin
+     * regex {
+     *     posix {
+     *         alnum()    // \p{Alnum}
+     *         punct()    // \p{Punct}
+     *     }
+     * }
+     * // Result: [\p{Alnum}\p{Punct}]
+     * ```
+     *
+     * @param block The builder block for specifying POSIX classes.
+     * @since 0.3.0
+     */
+    override fun posix(block: PosixBuilder.() -> Unit) {
+        val charClassBuilder = CharClassBuilder()
+        val posixBuilder = PosixBuilder(charClassBuilder)
+        posixBuilder.block()
+        append(charClassBuilder.build())
+    }
+
+    /**
+     * Creates a character class with Unicode character classes using a builder.
+     * Overrides interface default to wrap in a single character class.
+     *
+     * Example:
+     * ```kotlin
+     * regex {
+     *     unicode {
+     *         letter()       // \p{L}
+     *         number()       // \p{N}
+     *         script("Han")  // \p{IsHan}
+     *     }
+     * }
+     * // Result: [\p{L}\p{N}\p{IsHan}]
+     * ```
+     *
+     * @param block The builder block for specifying Unicode classes.
+     * @since 0.3.0
+     */
+    override fun unicode(block: UnicodeBuilder.() -> Unit) {
+        val charClassBuilder = CharClassBuilder()
+        val unicodeBuilder = UnicodeBuilder(charClassBuilder)
+        unicodeBuilder.block()
+        append(charClassBuilder.build())
+    }
+
+    /**
+     * Creates a character class with Hangul character ranges using a builder.
+     * Overrides interface default to wrap in a single character class.
+     *
+     * Example:
+     * ```kotlin
+     * regex {
+     *     hangul {
+     *         syllable()    // 가-힣 (완성형)
+     *         consonant()   // ㄱ-ㅎ (자음)
+     *     }
+     * }
+     * // Result: [가-힣ㄱ-ㅎ]
+     * ```
+     *
+     * @param block The builder block for specifying Hangul ranges.
+     * @since 0.3.0
+     */
+    override fun hangul(block: HangulBuilder.() -> Unit) {
+        val charClassBuilder = CharClassBuilder()
+        val hangulBuilder = HangulBuilder(charClassBuilder)
+        hangulBuilder.block()
         append(charClassBuilder.build())
     }
 
@@ -1235,7 +1385,7 @@ class RegexBuilder : CharacterRangeCapable {
  * // Result: [a-zA-Z]
  * ```
  *
- * @since 0.1.0
+ * @since 0.2.0
  */
 @KregexDsl
 class AsciiBuilder internal constructor(private val delegate: CharacterRangeCapable) {
@@ -1269,6 +1419,209 @@ class AsciiBuilder internal constructor(private val delegate: CharacterRangeCapa
      * Adds hexadecimal digit characters (0-9a-fA-F).
      */
     fun hexDigit() = delegate.hexDigit()
+}
+
+/**
+ * Builder for POSIX character classes within a character class.
+ *
+ * This builder provides a convenient DSL for adding POSIX character classes.
+ * It can be used within [RegexBuilder.posix] or [CharClassBuilder.posix] blocks.
+ *
+ * Example:
+ * ```kotlin
+ * charClass {
+ *     posix {
+ *         alnum()    // \p{Alnum}
+ *         punct()    // \p{Punct}
+ *     }
+ * }
+ * ```
+ *
+ * @since 0.3.0
+ */
+@KregexDsl
+class PosixBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+
+    /**
+     * Matches alphanumeric characters (`\p{Alnum}`).
+     */
+    fun alnum() = delegate.posixAlnum()
+
+    /**
+     * Matches alphabetic characters (`\p{Alpha}`).
+     */
+    fun alpha() = delegate.posixAlpha()
+
+    /**
+     * Matches ASCII characters (`\p{ASCII}`).
+     */
+    fun ascii() = delegate.posixAscii()
+
+    /**
+     * Matches blank characters (`\p{Blank}`).
+     */
+    fun blank() = delegate.posixBlank()
+
+    /**
+     * Matches control characters (`\p{Cntrl}`).
+     */
+    fun cntrl() = delegate.posixCntrl()
+
+    /**
+     * Matches digit characters (`\p{Digit}`).
+     */
+    fun digit() = delegate.posixDigit()
+
+    /**
+     * Matches visible characters (`\p{Graph}`).
+     */
+    fun graph() = delegate.posixGraph()
+
+    /**
+     * Matches lowercase letters (`\p{Lower}`).
+     */
+    fun lower() = delegate.posixLower()
+
+    /**
+     * Matches printable characters (`\p{Print}`).
+     */
+    fun print() = delegate.posixPrint()
+
+    /**
+     * Matches punctuation characters (`\p{Punct}`).
+     */
+    fun punct() = delegate.posixPunct()
+
+    /**
+     * Matches whitespace characters (`\p{Space}`).
+     */
+    fun space() = delegate.posixSpace()
+
+    /**
+     * Matches uppercase letters (`\p{Upper}`).
+     */
+    fun upper() = delegate.posixUpper()
+
+    /**
+     * Matches hexadecimal digits (`\p{XDigit}`).
+     */
+    fun xdigit() = delegate.posixXDigit()
+}
+
+/**
+ * Builder for Unicode character classes within a character class.
+ *
+ * This builder provides a convenient DSL for adding Unicode character classes.
+ * It can be used within [RegexBuilder.unicode] or [CharClassBuilder.unicode] blocks.
+ *
+ * Example:
+ * ```kotlin
+ * charClass {
+ *     unicode {
+ *         letter()       // \p{L}
+ *         number()       // \p{N}
+ *         script("Han")  // \p{IsHan}
+ *     }
+ * }
+ * ```
+ *
+ * @since 0.3.0
+ */
+@KregexDsl
+class UnicodeBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+
+    /**
+     * Matches characters with the specified Unicode property (`\p{...}`).
+     */
+    fun property(property: String) = delegate.unicodeProperty(property)
+
+    /**
+     * Matches characters WITHOUT the specified Unicode property (`\P{...}`).
+     */
+    fun notProperty(property: String) = delegate.notUnicodeProperty(property)
+
+    /**
+     * Matches characters in the specified Unicode script (`\p{Is...}`).
+     */
+    fun script(script: String) = delegate.unicodeScript(script)
+
+    /**
+     * Matches characters in the specified Unicode block (`\p{In...}`).
+     */
+    fun block(block: String) = delegate.unicodeBlock(block)
+
+    /**
+     * Matches any Unicode letter character (`\p{L}`).
+     */
+    fun letter() = delegate.unicodeLetter()
+
+    /**
+     * Matches any Unicode uppercase letter (`\p{Lu}`).
+     */
+    fun uppercaseLetter() = delegate.unicodeUppercaseLetter()
+
+    /**
+     * Matches any Unicode lowercase letter (`\p{Ll}`).
+     */
+    fun lowercaseLetter() = delegate.unicodeLowercaseLetter()
+
+    /**
+     * Matches any Unicode numeric character (`\p{N}`).
+     */
+    fun number() = delegate.unicodeNumber()
+
+    /**
+     * Matches any Unicode punctuation character (`\p{P}`).
+     */
+    fun punctuation() = delegate.unicodePunctuation()
+
+    /**
+     * Matches any Unicode symbol character (`\p{S}`).
+     */
+    fun symbol() = delegate.unicodeSymbol()
+}
+
+/**
+ * Builder for Hangul (Korean) character ranges within a character class.
+ *
+ * This builder provides a convenient DSL for adding Korean character ranges.
+ * It can be used within [RegexBuilder.hangul] or [CharClassBuilder.hangul] blocks.
+ *
+ * Example:
+ * ```kotlin
+ * charClass {
+ *     hangul {
+ *         syllable()    // 가-힣 (완성형)
+ *         consonant()   // ㄱ-ㅎ (자음)
+ *         vowel()       // ㅏ-ㅣ (모음)
+ *     }
+ * }
+ * ```
+ *
+ * @since 0.3.0
+ */
+@KregexDsl
+class HangulBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+
+    /**
+     * Matches Hangul syllables (완성형 한글: 가-힣).
+     */
+    fun syllable() = delegate.hangulSyllable()
+
+    /**
+     * Matches Hangul Jamo (한글 자모: ㄱ-ㅣ).
+     */
+    fun jamo() = delegate.hangulJamo()
+
+    /**
+     * Matches Hangul consonants (한글 자음: ㄱ-ㅎ).
+     */
+    fun consonant() = delegate.hangulConsonant()
+
+    /**
+     * Matches Hangul vowels (한글 모음: ㅏ-ㅣ).
+     */
+    fun vowel() = delegate.hangulVowel()
 }
 
 /**

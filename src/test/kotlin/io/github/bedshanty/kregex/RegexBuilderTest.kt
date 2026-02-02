@@ -1543,10 +1543,10 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `hangul matches complete Korean syllables`() {
+    fun `hangulSyllable matches complete Korean syllables`() {
         val pattern = regex {
             startOfLine()
-            oneOrMore { hangul() }
+            oneOrMore { hangulSyllable() }
             endOfLine()
         }
         assertTrue(pattern.matches("안녕하세요"))
@@ -1602,17 +1602,17 @@ class RegexBuilderTest {
 
     @Test
     fun `hangul patterns generate correct regex`() {
-        assertEquals("[가-힣]", regex { hangul() }.pattern)
+        assertEquals("[가-힣]", regex { hangulSyllable() }.pattern)
         assertEquals("[ㄱ-ㅣ]", regex { hangulJamo() }.pattern)
         assertEquals("[ㄱ-ㅎ]", regex { hangulConsonant() }.pattern)
         assertEquals("[ㅏ-ㅣ]", regex { hangulVowel() }.pattern)
     }
 
     @Test
-    fun `hangul combined with other patterns`() {
+    fun `hangulSyllable combined with other patterns`() {
         val pattern = regex {
             startOfLine()
-            oneOrMore { hangul() }
+            oneOrMore { hangulSyllable() }
             whitespace()
             oneOrMore { digit() }
             endOfLine()
@@ -1623,12 +1623,12 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `hangul patterns work inside charClass`() {
+    fun `hangulSyllable patterns work inside charClass`() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
                 charClass {
-                    hangul()
+                    hangulSyllable()
                     digit()
                 }
             }
@@ -1666,7 +1666,7 @@ class RegexBuilderTest {
             startOfLine()
             oneOrMore {
                 charClass {
-                    hangul()
+                    hangulSyllable()
                     hangulConsonant()
                     digit()
                 }
