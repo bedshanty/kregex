@@ -13,6 +13,7 @@ Instead of writing cryptic regex patterns like `^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z
 ## Features
 
 - **100% Java/Kotlin regex syntax** - Full compatibility with `java.util.regex.Pattern`
+- **Pre-built patterns** - Ready-to-use patterns for email, password, URL, date, and more
 - **Type-safe DSL** - Compile-time safety with Kotlin's DSL markers
 - **Readable patterns** - Self-documenting regex construction
 - **Full regex support** - Anchors, character classes, quantifiers, lookarounds, back references
@@ -27,7 +28,7 @@ Instead of writing cryptic regex patterns like `^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z
 
 ```kotlin
 dependencies {
-    implementation("io.github.bedshanty:kregex:0.2.0")
+    implementation("io.github.bedshanty:kregex:0.3.0")
 }
 ```
 
@@ -35,7 +36,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'io.github.bedshanty:kregex:0.2.0'
+    implementation 'io.github.bedshanty:kregex:0.3.0'
 }
 ```
 
@@ -45,7 +46,7 @@ dependencies {
 <dependency>
     <groupId>io.github.bedshanty</groupId>
     <artifactId>kregex</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -104,25 +105,30 @@ println(phonePattern.matches("+1-123-456-7890"))  // true
 println(phonePattern.matches("+82-123-456-7890")) // true
 ```
 
-### Image File Extension
+### Password Validation
 
 ```kotlin
-// ^.+\.(jpg|png|gif)$
-val imageFilePattern = regex {
+// ^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{2,16}$
+// 2-16 chars, requires: lowercase, uppercase, digit, special char (!@#$%^&*)
+val passwordPattern = regex {
     line {
-        oneOrMore { anyChar() }
-        literal(".")
-        either(
-            { literal("jpg") },
-            { literal("png") },
-            { literal("gif") }
-        )
+        lookAhead { zeroOrMore { anyChar() }; asciiLowercase() }
+        lookAhead { zeroOrMore { anyChar() }; asciiUppercase() }
+        lookAhead { zeroOrMore { anyChar() }; asciiDigit() }
+        lookAhead { zeroOrMore { anyChar() }; anyOf("!@#$%^&*") }
+        repeat(2, 16) {
+            anyOf {
+                asciiAlphanumeric()
+                chars("!@#$%^&*")
+            }
+        }
     }
 }
 
-println(imageFilePattern.matches("photo.jpg"))       // true
-println(imageFilePattern.matches("animation.gif"))   // true
-println(imageFilePattern.matches("document.pdf"))    // false
+println(passwordPattern.matches("aA1!"))        // true
+println(passwordPattern.matches("MyP@ssw0rd"))  // true
+println(passwordPattern.matches("abcd1234"))    // false (no uppercase, no special char)
+println(passwordPattern.matches("a"))           // false (too short)
 ```
 
 ### URL Parsing with Named Captures
@@ -264,6 +270,29 @@ regex {
 | `unicodePunctuation()` | `\p{P}` | Unicode punctuation |
 | `unicodeSymbol()` | `\p{S}` | Unicode symbol |
 
+#### Unicode Block
+
+Use `unicode { }` block for combining Unicode classes:
+
+```kotlin
+regex {
+    unicode {
+        letter()       // \p{L}
+        number()       // \p{N}
+        script("Han")  // \p{IsHan}
+    }
+}
+// Result: [\p{L}\p{N}\p{IsHan}]
+```
+
+Available methods inside `unicode { }`:
+- `property(name)` - Unicode property (`\p{...}`)
+- `notProperty(name)` - Negated property (`\P{...}`)
+- `script(name)` - Unicode script (`\p{Is...}`)
+- `block(name)` - Unicode block (`\p{In...}`)
+- `letter()`, `uppercaseLetter()`, `lowercaseLetter()`
+- `number()`, `punctuation()`, `symbol()`
+
 ### ASCII Character Ranges
 
 | Method | Pattern | Description |
@@ -307,7 +336,7 @@ Available methods inside `ascii { }`:
 
 | Method | Pattern | Description |
 |--------|---------|-------------|
-| `hangul()` | `[가-힣]` | Complete Hangul syllable (완성형 한글) |
+| `hangulSyllable()` | `[가-힣]` | Complete Hangul syllable (완성형 한글) |
 | `hangulJamo()` | `[ㄱ-ㅣ]` | Hangul Jamo - consonants and vowels (한글 자모) |
 | `hangulConsonant()` | `[ㄱ-ㅎ]` | Hangul consonants only (한글 자음) |
 | `hangulVowel()` | `[ㅏ-ㅣ]` | Hangul vowels only (한글 모음) |
@@ -317,16 +346,18 @@ These patterns work in both `RegexBuilder` and `CharClassBuilder` contexts:
 ```kotlin
 // Match Korean text
 val koreanPattern = regex {
-    line { oneOrMore { hangul() } }
+    line { oneOrMore { hangulSyllable() } }
 }
 println(koreanPattern.matches("안녕하세요"))  // true
 
-// Combine with other characters in anyOf
+// Combine with other characters using hangul block
 val mixed = regex {
     oneOrMore {
         anyOf {
-            hangul()      // Works inside anyOf too!
-            hangulJamo()  // Include Jamo as well
+            hangul {
+                syllable()  // 가-힣
+                jamo()      // ㄱ-ㅣ
+            }
             digit()
         }
     }
@@ -334,6 +365,26 @@ val mixed = regex {
 println(mixed.matches("가격1000ㅋㅋ"))  // true
 // Generated pattern: [가-힣ㄱ-ㅣ\d]+
 ```
+
+#### Hangul Block
+
+Use `hangul { }` block for combining Hangul ranges:
+
+```kotlin
+regex {
+    hangul {
+        syllable()    // 가-힣 (완성형)
+        consonant()   // ㄱ-ㅎ (자음)
+    }
+}
+// Result: [가-힣ㄱ-ㅎ]
+```
+
+Available methods inside `hangul { }`:
+- `syllable()` - Complete syllables (가-힣)
+- `jamo()` - All Jamo (ㄱ-ㅣ)
+- `consonant()` - Consonants only (ㄱ-ㅎ)
+- `vowel()` - Vowels only (ㅏ-ㅣ)
 
 ### POSIX Character Classes
 
@@ -352,6 +403,25 @@ println(mixed.matches("가격1000ㅋㅋ"))  // true
 | `posixSpace()` | `\p{Space}` | Whitespace `[ \t\n\r\f\v]` |
 | `posixUpper()` | `\p{Upper}` | Uppercase `[A-Z]` |
 | `posixXDigit()` | `\p{XDigit}` | Hex digits `[0-9a-fA-F]` |
+
+#### POSIX Block
+
+Use `posix { }` block for combining POSIX classes:
+
+```kotlin
+regex {
+    posix {
+        alnum()    // \p{Alnum}
+        punct()    // \p{Punct}
+    }
+}
+// Result: [\p{Alnum}\p{Punct}]
+```
+
+Available methods inside `posix { }`:
+- `alnum()`, `alpha()`, `ascii()`, `blank()`, `cntrl()`
+- `digit()`, `graph()`, `lower()`, `print()`, `punct()`
+- `space()`, `upper()`, `xdigit()`
 
 ### Literals & Character Sets
 
@@ -523,19 +593,70 @@ regex {
 
 Kregex provides pre-built patterns for common use cases. These are extension functions on `RegexBuilder` that you can use directly in your regex definitions.
 
-### Email & URL
+### Email
 
 | Method | Description | Example Match |
 |--------|-------------|---------------|
 | `email()` | Basic email pattern | `user@example.com` |
-| `httpUrl()` | HTTP/HTTPS URL | `https://example.com/path` |
-| `httpUrlWithCapture()` | URL with named captures (protocol, domain, port, path) | `https://example.com:8080/api` |
 
 ```kotlin
 val pattern = regex {
     line { email() }
 }
 println(pattern.matches("user@example.com"))  // true
+```
+
+### Password
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `password(...)` | Configurable password validation | `Password1!` |
+
+**`password()` Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `minLength` | `Int` | `8` | Minimum length |
+| `maxLength` | `Int?` | `256` | Maximum length (null = unlimited) |
+| `requireUppercase` | `Boolean` | `false` | Require uppercase letter |
+| `requireLowercase` | `Boolean` | `false` | Require lowercase letter |
+| `requireDigit` | `Boolean` | `false` | Require digit |
+| `requireSpecialChar` | `Boolean` | `false` | Require special character |
+| `allowedSpecialChars` | `String` | OWASP recommended set | Allowed special characters |
+
+**Default special characters (OWASP recommended)**: ` !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~` (includes space)
+
+**Allowed characters**: Only ASCII letters (a-z, A-Z), digits (0-9), and characters specified in `allowedSpecialChars` are allowed. Korean, emojis, etc. are rejected.
+
+```kotlin
+val pattern = regex {
+    line {
+        password(
+            minLength = 8,
+            maxLength = 20,
+            requireUppercase = true,
+            requireLowercase = true,
+            requireDigit = true,
+            requireSpecialChar = true
+        )
+    }
+}
+println(pattern.matches("Password1!"))  // true
+println(pattern.matches("password"))    // false (requirements not met)
+```
+
+### URL
+
+| Method | Description | Example Match |
+|--------|-------------|---------------|
+| `httpUrl()` | HTTP/HTTPS URL | `https://example.com/path` |
+| `httpUrlWithCapture()` | URL with named captures (protocol, domain, port, path) | `https://example.com:8080/api` |
+
+```kotlin
+val pattern = regex {
+    line { httpUrl() }
+}
+println(pattern.matches("https://example.com/path"))  // true
 ```
 
 ### IP Addresses

@@ -6,13 +6,14 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bedshanty/kregex)](https://central.sonatype.com/artifact/io.github.bedshanty/kregex)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Kregex**는 정규 표현식을 읽기 쉽고, 타입 안전(Type-safe)하게 작성할 수 있는 Kotlin DSL 라이브러리입니다.
+**Kregex**는 복잡하고 난해한 정규식 패턴을 직관적이고 구조화된 Kotlin 코드로 만들어주는 DSL 라이브러리입니다. — 정규식을 **쉽게 사용**하고, **쉽게 읽고**, **쉽게 유지보수**할 수 있게 해줍니다.
 
 `^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z0-9-]+)\.(?:[a-zA-Z]{2,6})$` 처럼 암호 같은 정규식 대신, Kotlin 코드로 표현할 수 있습니다.
 
 ## 특징
 
 - **100% Java/Kotlin 정규식 문법 지원** - `java.util.regex.Pattern`과 완벽 호환
+- **사전 정의 패턴** - 이메일, 비밀번호, URL, 날짜 등 바로 사용 가능한 패턴 제공
 - **타입 안전 DSL** - Kotlin의 DSL 마커를 활용한 컴파일 타임 안전성
 - **가독성 높은 패턴** - 자체 문서화되는 정규식 구성
 - **완전한 정규식 지원** - 앵커, 문자 클래스, 수량자, 전후방 탐색, 역참조
@@ -28,7 +29,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.github.bedshanty:kregex:0.2.0")
+    implementation("io.github.bedshanty:kregex:0.3.0")
 }
 ```
 
@@ -36,7 +37,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation 'io.github.bedshanty:kregex:0.2.0'
+    implementation 'io.github.bedshanty:kregex:0.3.0'
 }
 ```
 
@@ -46,7 +47,7 @@ dependencies {
 <dependency>
     <groupId>io.github.bedshanty</groupId>
     <artifactId>kregex</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
@@ -99,25 +100,30 @@ println(휴대폰번호.matches("011-123-4567"))   // true
 println(휴대폰번호.matches("010.1234.5678"))  // false
 ```
 
-### 이미지 파일 확장자
+### 비밀번호 검증
 
 ```kotlin
-// ^.+\.(jpg|png|gif)$
-val 이미지파일패턴 = regex {
+// ^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{2,16}$
+// 2-16자, 필수: 소문자, 대문자, 숫자, 특수문자 (!@#$%^&*)
+val 비밀번호패턴 = regex {
     line {
-        oneOrMore { anyChar() }
-        literal(".")
-        either(
-            { literal("jpg") },
-            { literal("png") },
-            { literal("gif") }
-        )
+        lookAhead { zeroOrMore { anyChar() }; asciiLowercase() }
+        lookAhead { zeroOrMore { anyChar() }; asciiUppercase() }
+        lookAhead { zeroOrMore { anyChar() }; asciiDigit() }
+        lookAhead { zeroOrMore { anyChar() }; anyOf("!@#$%^&*") }
+        repeat(2, 16) {
+            anyOf {
+                asciiAlphanumeric()
+                chars("!@#$%^&*")
+            }
+        }
     }
 }
 
-println(이미지파일패턴.matches("photo.jpg"))       // true
-println(이미지파일패턴.matches("animation.gif"))   // true
-println(이미지파일패턴.matches("document.pdf"))    // false
+println(비밀번호패턴.matches("aA1!"))        // true
+println(비밀번호패턴.matches("MyP@ssw0rd"))  // true
+println(비밀번호패턴.matches("abcd1234"))    // false (대문자, 특수문자 없음)
+println(비밀번호패턴.matches("a"))           // false (너무 짧음)
 ```
 
 ### 캡처 그룹으로 URL 파싱
@@ -126,24 +132,24 @@ println(이미지파일패턴.matches("document.pdf"))    // false
 // ^(?<프로토콜>https|http)://(?<도메인>[\w.-]+)(?<포트>:\d+)?(?<경로>[\w/.-]*)?$
 val URL패턴 = regex {
     line {
-        capture("프로토콜") {
+        captureAs("프로토콜") {
             either(
                 { literal("https") },
                 { literal("http") }
             )
         }
         literal("://")
-        capture("도메인") {
+        captureAs("도메인") {
             oneOrMore { anyOf { wordChar(); chars(".-") } }
         }
         optional {
-            capture("포트") {
+            captureAs("포트") {
                 literal(":")
                 oneOrMore { digit() }
             }
         }
         optional {
-            capture("경로") {
+            captureAs("경로") {
                 zeroOrMore { anyOf { wordChar(); chars("/.-") } }
             }
         }
@@ -162,7 +168,7 @@ println(매치결과.groups["포트"]?.value)      // :8080
 // <(?<태그>\w+).*>.*?</\k<태그>>
 val HTML태그 = regex {
     literal("<")
-    capture("태그") { oneOrMore { wordChar() } }
+    captureAs("태그") { oneOrMore { wordChar() } }
     zeroOrMore { anyChar() }
     literal(">")
     zeroOrMoreLazy { anyChar() }
@@ -183,7 +189,7 @@ Kregex는 한글 처리를 위한 전용 함수를 제공합니다.
 
 | 메서드 | 패턴 | 설명 |
 |--------|------|------|
-| `hangul()` | `[가-힣]` | 완성형 한글 (가~힣) |
+| `hangulSyllable()` | `[가-힣]` | 완성형 한글 (가~힣) |
 | `hangulJamo()` | `[ㄱ-ㅣ]` | 한글 자모 (ㄱ~ㅣ) |
 | `hangulConsonant()` | `[ㄱ-ㅎ]` | 한글 자음만 (ㄱ~ㅎ) |
 | `hangulVowel()` | `[ㅏ-ㅣ]` | 한글 모음만 (ㅏ~ㅣ) |
@@ -194,7 +200,7 @@ Kregex는 한글 처리를 위한 전용 함수를 제공합니다.
 // 완성형 한글만 매칭
 val 한글패턴 = regex {
     line {
-        oneOrMore { hangul() }
+        oneOrMore { hangulSyllable() }
     }
 }
 
@@ -221,12 +227,14 @@ println(자모패턴.matches("ㅠㅠ"))    // true
 ### 한글과 다른 문자 조합
 
 ```kotlin
-// 한글 + 숫자 조합
+// 한글 + 숫자 조합 (hangul 블록 사용)
 val 혼합패턴 = regex {
     oneOrMore {
         anyOf {
-            hangul()
-            hangulJamo()
+            hangul {
+                syllable()  // 가-힣
+                jamo()      // ㄱ-ㅣ
+            }
             digit()
         }
     }
@@ -236,6 +244,26 @@ println(혼합패턴.matches("가격1000원"))   // true
 println(혼합패턴.matches("ㅋㅋ123ㅎㅎ"))  // true
 // 생성된 패턴: [가-힣ㄱ-ㅣ\d]+
 ```
+
+### hangul 블록
+
+`hangul { }` 블록으로 한글 범위를 조합하세요:
+
+```kotlin
+regex {
+    hangul {
+        syllable()    // 가-힣 (완성형)
+        consonant()   // ㄱ-ㅎ (자음)
+    }
+}
+// 결과: [가-힣ㄱ-ㅎ]
+```
+
+`hangul { }` 내에서 사용 가능한 메서드:
+- `syllable()` - 완성형 한글 (가-힣)
+- `jamo()` - 모든 자모 (ㄱ-ㅣ)
+- `consonant()` - 자음만 (ㄱ-ㅎ)
+- `vowel()` - 모음만 (ㅏ-ㅣ)
 
 ## API 레퍼런스
 
@@ -316,6 +344,66 @@ regex {
 | `unicodeLetter()` | `\p{L}` | 모든 유니코드 문자 |
 | `unicodeNumber()` | `\p{N}` | 모든 유니코드 숫자 |
 
+#### unicode 블록
+
+`unicode { }` 블록으로 유니코드 클래스를 조합하세요:
+
+```kotlin
+regex {
+    unicode {
+        letter()       // \p{L}
+        number()       // \p{N}
+        script("Han")  // \p{IsHan}
+    }
+}
+// 결과: [\p{L}\p{N}\p{IsHan}]
+```
+
+`unicode { }` 내에서 사용 가능한 메서드:
+- `property(name)` - 유니코드 속성 (`\p{...}`)
+- `notProperty(name)` - 부정 속성 (`\P{...}`)
+- `script(name)` - 유니코드 스크립트 (`\p{Is...}`)
+- `block(name)` - 유니코드 블록 (`\p{In...}`)
+- `letter()`, `uppercaseLetter()`, `lowercaseLetter()`
+- `number()`, `punctuation()`, `symbol()`
+
+### POSIX 문자 클래스
+
+| 메서드 | 패턴 | 설명 |
+|--------|------|------|
+| `posixAlnum()` | `\p{Alnum}` | 영숫자 `[a-zA-Z0-9]` |
+| `posixAlpha()` | `\p{Alpha}` | 알파벳 `[a-zA-Z]` |
+| `posixAscii()` | `\p{ASCII}` | ASCII 문자 `[\x00-\x7F]` |
+| `posixBlank()` | `\p{Blank}` | 공백과 탭 `[ \t]` |
+| `posixCntrl()` | `\p{Cntrl}` | 제어 문자 |
+| `posixDigit()` | `\p{Digit}` | 숫자 `[0-9]` |
+| `posixGraph()` | `\p{Graph}` | 보이는 문자 (공백 제외) |
+| `posixLower()` | `\p{Lower}` | 소문자 `[a-z]` |
+| `posixPrint()` | `\p{Print}` | 인쇄 가능한 문자 |
+| `posixPunct()` | `\p{Punct}` | 구두점 |
+| `posixSpace()` | `\p{Space}` | 공백 문자 `[ \t\n\r\f\v]` |
+| `posixUpper()` | `\p{Upper}` | 대문자 `[A-Z]` |
+| `posixXDigit()` | `\p{XDigit}` | 16진수 숫자 `[0-9a-fA-F]` |
+
+#### posix 블록
+
+`posix { }` 블록으로 POSIX 클래스를 조합하세요:
+
+```kotlin
+regex {
+    posix {
+        alnum()    // \p{Alnum}
+        punct()    // \p{Punct}
+    }
+}
+// 결과: [\p{Alnum}\p{Punct}]
+```
+
+`posix { }` 내에서 사용 가능한 메서드:
+- `alnum()`, `alpha()`, `ascii()`, `blank()`, `cntrl()`
+- `digit()`, `graph()`, `lower()`, `print()`, `punct()`
+- `space()`, `upper()`, `xdigit()`
+
 ### 리터럴 & 문자 집합
 
 | 메서드 | 패턴 | 설명 |
@@ -328,6 +416,23 @@ regex {
 | `noneOf { }` | `[^...]` | 부정 문자 클래스 빌더 (`negatedCharClass`의 별칭) |
 | `range('a', 'z')` | `[a-z]` | 문자 범위 |
 | `appendRaw("pattern")` | (그대로) | Raw 패턴 (이스케이프 없음) |
+
+### 문자 클래스 빌더
+
+```kotlin
+anyOf {
+    range('a', 'z')
+    range('A', 'Z')
+    chars("_-")
+    digit()
+}
+// 결과: [a-zA-Z_\-\d]
+
+noneOf {
+    range('0', '9')
+}
+// 결과: [^0-9]
+```
 
 ### ASCII 문자 범위
 
@@ -368,14 +473,43 @@ regex {
 - `alphanumeric()` - ASCII 영숫자 (a-zA-Z0-9)
 - `hexDigit()` - 16진수 숫자 (0-9a-fA-F)
 
-### 그룹 & 캡처
+#### ASCII 범위 단축 메서드
+
+charClass 내에서 사용할 수 있는 ASCII 범위 단축 메서드:
 
 | 메서드 | 패턴 | 설명 |
 |--------|------|------|
-| `capture { }` | `(...)` | 캡처 그룹 |
-| `capture("이름") { }` | `(?<이름>...)` | 명명된 캡처 그룹 |
-| `group { }` | `(?:...)` | 비캡처 그룹 |
-| `atomicGroup { }` | `(?>...)` | 원자적 그룹 (백트래킹 없음) |
+| `asciiLowercase()` | `a-z` | ASCII 소문자 |
+| `asciiUppercase()` | `A-Z` | ASCII 대문자 |
+| `asciiDigit()` | `0-9` | ASCII 숫자 |
+| `asciiLetter()` | `a-zA-Z` | 모든 ASCII 문자 |
+| `asciiAlphanumeric()` | `a-zA-Z0-9` | ASCII 영숫자 |
+| `hexDigit()` | `0-9a-fA-F` | 16진수 숫자 |
+
+```kotlin
+// 단축 메서드 직접 사용
+anyOf { hexDigit() }
+// 결과: [0-9a-fA-F]
+
+// charClass 내에서 ascii 블록 사용
+anyOf {
+    ascii {
+        lower()
+        digit()
+    }
+    chars("_")
+}
+// 결과: [a-z0-9_]
+```
+
+### 그룹 & 캡처
+
+| 메서드                 | 패턴 | 설명 |
+|---------------------|------|------|
+| `capture { }`       | `(...)` | 캡처 그룹 |
+| `captureAs("이름") { }` | `(?<이름>...)` | 명명된 캡처 그룹 |
+| `group { }`         | `(?:...)` | 비캡처 그룹 |
+| `atomicGroup { }`   | `(?>...)` | 원자적 그룹 (백트래킹 없음) |
 
 ### 역참조
 
@@ -412,6 +546,16 @@ optionalLazy { digit() }        // (?:\d)??
 ```kotlin
 oneOrMorePossessive { digit() }     // (?:\d)++
 zeroOrMorePossessive { anyChar() }  // (?:.)*+
+optionalPossessive { digit() }      // (?:\d)?+
+```
+
+### 수량자 모드 매개변수
+
+모드를 매개변수로 지정할 수도 있습니다:
+
+```kotlin
+oneOrMore(QuantifierMode.LAZY) { digit() }
+repeat(2, 5, QuantifierMode.POSSESSIVE) { wordChar() }
 ```
 
 ### 전후방 탐색
@@ -422,6 +566,15 @@ zeroOrMorePossessive { anyChar() }  // (?:.)*+
 | `negativeLookAhead { }` | `(?!...)` | 부정 전방 탐색 |
 | `lookBehind { }` | `(?<=...)` | 긍정 후방 탐색 |
 | `negativeLookBehind { }` | `(?<!...)` | 부정 후방 탐색 |
+
+### 인라인 수정자
+
+| 메서드 | 패턴 | 설명 |
+|--------|------|------|
+| `caseInsensitive { }` | `(?i:...)` | 대소문자 무시 매칭 |
+| `multiline { }` | `(?m:...)` | 멀티라인 모드 |
+| `dotAll { }` | `(?s:...)` | 점(.)이 줄바꿈도 매칭 |
+| `comments { }` | `(?x:...)` | 주석 모드 |
 
 ### 선택
 
@@ -447,19 +600,70 @@ regex {
 
 Kregex는 자주 사용되는 패턴을 미리 정의해 제공합니다. `RegexBuilder`의 확장 함수로, 정규식 정의 내에서 바로 사용할 수 있습니다.
 
-### 이메일 & URL
+### 이메일
 
 | 메서드 | 설명 | 매칭 예시 |
 |--------|------|----------|
 | `email()` | 기본 이메일 패턴 | `user@example.com` |
-| `httpUrl()` | HTTP/HTTPS URL | `https://example.com/path` |
-| `httpUrlWithCapture()` | 캡처 그룹이 있는 URL (protocol, domain, port, path) | `https://example.com:8080/api` |
 
 ```kotlin
 val pattern = regex {
     line { email() }
 }
 println(pattern.matches("user@example.com"))  // true
+```
+
+### 비밀번호
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `password(...)` | 설정 가능한 비밀번호 검증 | `Password1!` |
+
+**`password()` 파라미터:**
+
+| 파라미터 | 타입 | 기본값 | 설명 |
+|---------|------|--------|------|
+| `minLength` | `Int` | `8` | 최소 길이 |
+| `maxLength` | `Int?` | `256` | 최대 길이 (null = 무제한) |
+| `requireUppercase` | `Boolean` | `false` | 대문자 필수 여부 |
+| `requireLowercase` | `Boolean` | `false` | 소문자 필수 여부 |
+| `requireDigit` | `Boolean` | `false` | 숫자 필수 여부 |
+| `requireSpecialChar` | `Boolean` | `false` | 특수문자 필수 여부 |
+| `allowedSpecialChars` | `String` | OWASP 권장 세트 | 허용할 특수문자 |
+
+**기본 특수문자 (OWASP 권장)**: ` !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~` (공백 포함)
+
+**허용 문자**: ASCII 영문자 (a-z, A-Z), 숫자 (0-9), `allowedSpecialChars`에 명시된 특수문자만 허용됩니다. 한글, 이모지 등은 거부됩니다.
+
+```kotlin
+val pattern = regex {
+    line {
+        password(
+            minLength = 8,
+            maxLength = 20,
+            requireUppercase = true,
+            requireLowercase = true,
+            requireDigit = true,
+            requireSpecialChar = true
+        )
+    }
+}
+println(pattern.matches("Password1!"))  // true
+println(pattern.matches("password"))    // false (요구사항 미충족)
+```
+
+### URL
+
+| 메서드 | 설명 | 매칭 예시 |
+|--------|------|----------|
+| `httpUrl()` | HTTP/HTTPS URL | `https://example.com/path` |
+| `httpUrlWithCapture()` | 캡처 그룹이 있는 URL (protocol, domain, port, path) | `https://example.com:8080/api` |
+
+```kotlin
+val pattern = regex {
+    line { httpUrl() }
+}
+println(pattern.matches("https://example.com/path"))  // true
 ```
 
 ### IP 주소
@@ -544,13 +748,13 @@ println(pattern.matches(".25"))      // true
 ```kotlin
 val 정규식 = regex {
     line {
-        oneOrMore { hangul() }
+        oneOrMore { hangulSyllable() }
         literal("님")
     }
 }
 
 println("생성된 패턴: ${정규식.pattern}")
-// 출력: ^(?:[가-힣])+\Q님\E$
+// 출력: ^[가-힣]+\Q님\E$
 ```
 
 ## 입력 검증
@@ -560,7 +764,7 @@ println("생성된 패턴: ${정규식.pattern}")
 ```kotlin
 range('z', 'a')           // 오류: 범위 시작은 끝보다 작거나 같아야 함
 repeat(-1) { digit() }    // 오류: 반복 횟수는 음수가 될 수 없음
-capture("123") { }        // 오류: 이름은 문자로 시작해야 함
+captureAs("123") { }        // 오류: 이름은 문자로 시작해야 함
 backReference(0)          // 오류: 그룹 번호는 1 이상이어야 함
 ```
 
@@ -576,7 +780,7 @@ val pattern = Regex("^[가-힣]{2,5}$")
 
 ```kotlin
 val pattern = regex {
-    line { repeat(2, 5) { hangul() } }
+    line { repeat(2, 5) { hangulSyllable() } }
 }
 ```
 
