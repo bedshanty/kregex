@@ -5,7 +5,7 @@ package io.github.bedshanty.kregex
  * This prevents accidental access to outer scopes when DSL blocks are nested.
  */
 @DslMarker
-annotation class KregexDsl
+public annotation class KregexDsl
 
 /**
  * Common interface for classes that support character pattern operations.
@@ -15,7 +15,7 @@ annotation class KregexDsl
  *
  * @since 0.1.0
  */
-interface CharacterRangeCapable {
+public interface CharacterRangeCapable {
     /**
      * Adds a character range.
      * In [RegexBuilder], this creates `[start-end]`.
@@ -25,7 +25,7 @@ interface CharacterRangeCapable {
      * @param end The ending character.
      * @throws IllegalArgumentException if start > end.
      */
-    fun range(start: Char, end: Char)
+    public fun range(start: Char, end: Char)
 
     /**
      * Appends a raw pattern string to the buffer.
@@ -33,7 +33,7 @@ interface CharacterRangeCapable {
      *
      * @param pattern The pattern string to append.
      */
-    fun appendRaw(pattern: String)
+    public fun appendRaw(pattern: String)
 
     // =========================================================================
     // Predefined Character Classes (shared implementations)
@@ -43,7 +43,7 @@ interface CharacterRangeCapable {
      * Appends a digit character class (`\d`).
      * Matches any digit (0-9).
      */
-    fun digit() {
+    public fun digit() {
         appendRaw("\\d")
     }
 
@@ -51,7 +51,7 @@ interface CharacterRangeCapable {
      * Appends a non-digit character class (`\D`).
      * Matches any character that is not a digit.
      */
-    fun nonDigit() {
+    public fun nonDigit() {
         appendRaw("\\D")
     }
 
@@ -59,7 +59,7 @@ interface CharacterRangeCapable {
      * Appends a whitespace character class (`\s`).
      * Matches any whitespace character (spaces, tabs, line breaks).
      */
-    fun whitespace() {
+    public fun whitespace() {
         appendRaw("\\s")
     }
 
@@ -67,7 +67,7 @@ interface CharacterRangeCapable {
      * Appends a non-whitespace character class (`\S`).
      * Matches any character that is not a whitespace.
      */
-    fun nonWhitespace() {
+    public fun nonWhitespace() {
         appendRaw("\\S")
     }
 
@@ -75,7 +75,7 @@ interface CharacterRangeCapable {
      * Appends a word character class (`\w`).
      * Matches any word character (alphanumeric plus underscore).
      */
-    fun wordChar() {
+    public fun wordChar() {
         appendRaw("\\w")
     }
 
@@ -83,7 +83,7 @@ interface CharacterRangeCapable {
      * Appends a non-word character class (`\W`).
      * Matches any character that is not a word character.
      */
-    fun nonWordChar() {
+    public fun nonWordChar() {
         appendRaw("\\W")
     }
 
@@ -103,7 +103,7 @@ interface CharacterRangeCapable {
      *
      * @param property The Unicode property name.
      */
-    fun unicodeProperty(property: String) {
+    public fun unicodeProperty(property: String) {
         appendRaw("\\p{$property}")
     }
 
@@ -113,7 +113,7 @@ interface CharacterRangeCapable {
      *
      * @param property The Unicode property name.
      */
-    fun notUnicodeProperty(property: String) {
+    public fun notUnicodeProperty(property: String) {
         appendRaw("\\P{$property}")
     }
 
@@ -122,7 +122,7 @@ interface CharacterRangeCapable {
      *
      * @param script The Unicode script name (e.g., "Greek", "Cyrillic", "Han").
      */
-    fun unicodeScript(script: String) {
+    public fun unicodeScript(script: String) {
         appendRaw("\\p{Is$script}")
     }
 
@@ -131,7 +131,7 @@ interface CharacterRangeCapable {
      *
      * @param block The Unicode block name (e.g., "BasicLatin", "CJKUnifiedIdeographs").
      */
-    fun unicodeBlock(block: String) {
+    public fun unicodeBlock(block: String) {
         appendRaw("\\p{In$block}")
     }
 
@@ -142,32 +142,32 @@ interface CharacterRangeCapable {
     /**
      * Matches any Unicode letter character (`\p{L}`).
      */
-    fun unicodeLetter() = unicodeProperty("L")
+    public fun unicodeLetter(): Unit = unicodeProperty("L")
 
     /**
      * Matches any Unicode uppercase letter (`\p{Lu}`).
      */
-    fun unicodeUppercaseLetter() = unicodeProperty("Lu")
+    public fun unicodeUppercaseLetter(): Unit = unicodeProperty("Lu")
 
     /**
      * Matches any Unicode lowercase letter (`\p{Ll}`).
      */
-    fun unicodeLowercaseLetter() = unicodeProperty("Ll")
+    public fun unicodeLowercaseLetter(): Unit = unicodeProperty("Ll")
 
     /**
      * Matches any Unicode numeric character (`\p{N}`).
      */
-    fun unicodeNumber() = unicodeProperty("N")
+    public fun unicodeNumber(): Unit = unicodeProperty("N")
 
     /**
      * Matches any Unicode punctuation character (`\p{P}`).
      */
-    fun unicodePunctuation() = unicodeProperty("P")
+    public fun unicodePunctuation(): Unit = unicodeProperty("P")
 
     /**
      * Matches any Unicode symbol character (`\p{S}`).
      */
-    fun unicodeSymbol() = unicodeProperty("S")
+    public fun unicodeSymbol(): Unit = unicodeProperty("S")
 
     // =========================================================================
     // POSIX Character Classes
@@ -177,7 +177,7 @@ interface CharacterRangeCapable {
      * Matches alphanumeric characters (`\p{Alnum}`).
      * Equivalent to `[a-zA-Z0-9]`.
      */
-    fun posixAlnum() {
+    public fun posixAlnum() {
         appendRaw("\\p{Alnum}")
     }
 
@@ -185,7 +185,7 @@ interface CharacterRangeCapable {
      * Matches alphabetic characters (`\p{Alpha}`).
      * Equivalent to `[a-zA-Z]`.
      */
-    fun posixAlpha() {
+    public fun posixAlpha() {
         appendRaw("\\p{Alpha}")
     }
 
@@ -193,7 +193,7 @@ interface CharacterRangeCapable {
      * Matches ASCII characters (`\p{ASCII}`).
      * Equivalent to `[\x00-\x7F]`.
      */
-    fun posixAscii() {
+    public fun posixAscii() {
         appendRaw("\\p{ASCII}")
     }
 
@@ -201,14 +201,14 @@ interface CharacterRangeCapable {
      * Matches blank characters (`\p{Blank}`).
      * Equivalent to `[ \t]` (space and tab).
      */
-    fun posixBlank() {
+    public fun posixBlank() {
         appendRaw("\\p{Blank}")
     }
 
     /**
      * Matches control characters (`\p{Cntrl}`).
      */
-    fun posixCntrl() {
+    public fun posixCntrl() {
         appendRaw("\\p{Cntrl}")
     }
 
@@ -216,7 +216,7 @@ interface CharacterRangeCapable {
      * Matches digit characters (`\p{Digit}`).
      * Equivalent to `[0-9]`.
      */
-    fun posixDigit() {
+    public fun posixDigit() {
         appendRaw("\\p{Digit}")
     }
 
@@ -224,7 +224,7 @@ interface CharacterRangeCapable {
      * Matches visible characters (`\p{Graph}`).
      * Printable characters excluding space.
      */
-    fun posixGraph() {
+    public fun posixGraph() {
         appendRaw("\\p{Graph}")
     }
 
@@ -232,7 +232,7 @@ interface CharacterRangeCapable {
      * Matches lowercase letters (`\p{Lower}`).
      * Equivalent to `[a-z]`.
      */
-    fun posixLower() {
+    public fun posixLower() {
         appendRaw("\\p{Lower}")
     }
 
@@ -240,14 +240,14 @@ interface CharacterRangeCapable {
      * Matches printable characters (`\p{Print}`).
      * Visible characters plus space.
      */
-    fun posixPrint() {
+    public fun posixPrint() {
         appendRaw("\\p{Print}")
     }
 
     /**
      * Matches punctuation characters (`\p{Punct}`).
      */
-    fun posixPunct() {
+    public fun posixPunct() {
         appendRaw("\\p{Punct}")
     }
 
@@ -255,7 +255,7 @@ interface CharacterRangeCapable {
      * Matches whitespace characters (`\p{Space}`).
      * Equivalent to `[ \t\n\r\f\v]`.
      */
-    fun posixSpace() {
+    public fun posixSpace() {
         appendRaw("\\p{Space}")
     }
 
@@ -263,7 +263,7 @@ interface CharacterRangeCapable {
      * Matches uppercase letters (`\p{Upper}`).
      * Equivalent to `[A-Z]`.
      */
-    fun posixUpper() {
+    public fun posixUpper() {
         appendRaw("\\p{Upper}")
     }
 
@@ -271,7 +271,7 @@ interface CharacterRangeCapable {
      * Matches hexadecimal digits (`\p{XDigit}`).
      * Equivalent to `[0-9a-fA-F]`.
      */
-    fun posixXDigit() {
+    public fun posixXDigit() {
         appendRaw("\\p{XDigit}")
     }
 
@@ -291,7 +291,7 @@ interface CharacterRangeCapable {
      * charClass { hangulSyllable(); digit() }   // [가-힣\d]
      * ```
      */
-    fun hangulSyllable() {
+    public fun hangulSyllable() {
         range('\uAC00', '\uD7A3')  // 가-힣
     }
 
@@ -301,7 +301,7 @@ interface CharacterRangeCapable {
      *
      * Unicode range: U+3131 to U+3163 (ㄱ-ㅣ)
      */
-    fun hangulJamo() {
+    public fun hangulJamo() {
         range('\u3131', '\u3163')  // ㄱ-ㅣ
     }
 
@@ -311,7 +311,7 @@ interface CharacterRangeCapable {
      *
      * Unicode range: U+3131 to U+314E (ㄱ-ㅎ)
      */
-    fun hangulConsonant() {
+    public fun hangulConsonant() {
         range('\u3131', '\u314E')  // ㄱ-ㅎ
     }
 
@@ -321,7 +321,7 @@ interface CharacterRangeCapable {
      *
      * Unicode range: U+314F to U+3163 (ㅏ-ㅣ)
      */
-    fun hangulVowel() {
+    public fun hangulVowel() {
         range('\u314F', '\u3163')  // ㅏ-ㅣ
     }
 
@@ -332,24 +332,24 @@ interface CharacterRangeCapable {
     /**
      * Adds ASCII lowercase letters range (a-z).
      */
-    fun asciiLowercase() = range('a', 'z')
+    public fun asciiLowercase(): Unit = range('a', 'z')
 
     /**
      * Adds ASCII uppercase letters range (A-Z).
      */
-    fun asciiUppercase() = range('A', 'Z')
+    public fun asciiUppercase(): Unit = range('A', 'Z')
 
     /**
      * Adds ASCII digit range (0-9).
      * Unlike [digit] which uses `\d` (may include unicode digits),
      * this explicitly matches only ASCII digits 0-9.
      */
-    fun asciiDigit() = range('0', '9')
+    public fun asciiDigit(): Unit = range('0', '9')
 
     /**
      * Adds all ASCII letters (a-zA-Z).
      */
-    fun asciiLetter() {
+    public fun asciiLetter() {
         asciiLowercase()
         asciiUppercase()
     }
@@ -357,7 +357,7 @@ interface CharacterRangeCapable {
     /**
      * Adds ASCII alphanumeric characters (a-zA-Z0-9).
      */
-    fun asciiAlphanumeric() {
+    public fun asciiAlphanumeric() {
         asciiLetter()
         asciiDigit()
     }
@@ -365,7 +365,7 @@ interface CharacterRangeCapable {
     /**
      * Adds hexadecimal digit characters (0-9a-fA-F).
      */
-    fun hexDigit() {
+    public fun hexDigit() {
         asciiDigit()
         range('a', 'f')
         range('A', 'F')
@@ -378,32 +378,32 @@ interface CharacterRangeCapable {
     /**
      * Appends a tab character (`\t`).
      */
-    fun tab() = appendRaw("\\t")
+    public fun tab(): Unit = appendRaw("\\t")
 
     /**
      * Appends a newline character (`\n`).
      */
-    fun newline() = appendRaw("\\n")
+    public fun newline(): Unit = appendRaw("\\n")
 
     /**
      * Appends a carriage return character (`\r`).
      */
-    fun carriageReturn() = appendRaw("\\r")
+    public fun carriageReturn(): Unit = appendRaw("\\r")
 
     /**
      * Appends a form feed character (`\f`).
      */
-    fun formFeed() = appendRaw("\\f")
+    public fun formFeed(): Unit = appendRaw("\\f")
 
     /**
      * Appends an alert/bell character (`\a`).
      */
-    fun alert() = appendRaw("\\a")
+    public fun alert(): Unit = appendRaw("\\a")
 
     /**
      * Appends an escape character (`\e`).
      */
-    fun escape() = appendRaw("\\e")
+    public fun escape(): Unit = appendRaw("\\e")
 
     // =========================================================================
     // ASCII Builder
@@ -429,7 +429,7 @@ interface CharacterRangeCapable {
      * @param block The builder block for specifying ASCII ranges.
      * @since 0.2.0
      */
-    fun ascii(block: AsciiBuilder.() -> Unit) {
+    public fun ascii(block: AsciiBuilder.() -> Unit) {
         val builder = AsciiBuilder(this)
         builder.block()
     }
@@ -456,7 +456,7 @@ interface CharacterRangeCapable {
      * @param block The builder block for specifying POSIX classes.
      * @since 0.3.0
      */
-    fun posix(block: PosixBuilder.() -> Unit) {
+    public fun posix(block: PosixBuilder.() -> Unit) {
         val builder = PosixBuilder(this)
         builder.block()
     }
@@ -480,7 +480,7 @@ interface CharacterRangeCapable {
      * @param block The builder block for specifying Unicode classes.
      * @since 0.3.0
      */
-    fun unicode(block: UnicodeBuilder.() -> Unit) {
+    public fun unicode(block: UnicodeBuilder.() -> Unit) {
         val builder = UnicodeBuilder(this)
         builder.block()
     }
@@ -503,7 +503,7 @@ interface CharacterRangeCapable {
      * @param block The builder block for specifying Hangul ranges.
      * @since 0.3.0
      */
-    fun hangul(block: HangulBuilder.() -> Unit) {
+    public fun hangul(block: HangulBuilder.() -> Unit) {
         val builder = HangulBuilder(this)
         builder.block()
     }
@@ -531,7 +531,7 @@ private fun escapeForCharClass(chars: String): String {
 /**
  * Enum representing quantifier modes for regex patterns.
  */
-enum class QuantifierMode {
+public enum class QuantifierMode {
     /** Greedy mode (default) - matches as many characters as possible */
     GREEDY,
     /** Lazy/Reluctant mode - matches as few characters as possible */
@@ -549,7 +549,7 @@ enum class QuantifierMode {
  * @since 0.1.0
  */
 @KregexDsl
-class RegexBuilder : CharacterRangeCapable {
+public class RegexBuilder : CharacterRangeCapable {
     private val buffer = StringBuilder()
 
     /**
@@ -573,7 +573,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Appends a raw regex pattern without escaping.
      * Use with caution - the pattern is added exactly as provided.
      */
-    override fun appendRaw(pattern: String) = append(pattern)
+    public override fun appendRaw(pattern: String): Unit = append(pattern)
 
     // =========================================================================
     // Anchors & Boundaries
@@ -583,43 +583,43 @@ class RegexBuilder : CharacterRangeCapable {
      * Appends the start-of-line anchor (`^`).
      * Asserts that the current position is at the beginning of the line.
      */
-    fun startOfLine() = append("^")
+    public fun startOfLine(): Unit = append("^")
 
     /**
      * Appends the end-of-line anchor (`$`).
      * Asserts that the current position is at the end of the line.
      */
-    fun endOfLine() = append("$")
+    public fun endOfLine(): Unit = append("$")
 
     /**
      * Appends the start-of-input anchor (`\A`).
      * Asserts that the current position is at the very beginning of the input.
      */
-    fun startOfInput() = append("\\A")
+    public fun startOfInput(): Unit = append("\\A")
 
     /**
      * Appends the end-of-input anchor (`\z`).
      * Asserts that the current position is at the very end of the input.
      */
-    fun endOfInput() = append("\\z")
+    public fun endOfInput(): Unit = append("\\z")
 
     /**
      * Appends the end-of-input anchor (`\Z`).
      * Asserts that the current position is at the end of the input, but before any final line terminator.
      */
-    fun endOfInputBeforeNewline() = append("\\Z")
+    public fun endOfInputBeforeNewline(): Unit = append("\\Z")
 
     /**
      * Appends a word boundary (`\b`).
      * Matches the position where a word character is not followed or preceded by another word-character.
      */
-    fun wordBoundary() = append("\\b")
+    public fun wordBoundary(): Unit = append("\\b")
 
     /**
      * Appends a non-word boundary (`\B`).
      * Matches the position where the previous and next characters are both word characters or both non-word characters.
      */
-    fun nonWordBoundary() = append("\\B")
+    public fun nonWordBoundary(): Unit = append("\\B")
 
     /**
      * Wraps the block with start-of-line (`^`) and end-of-line (`$`) anchors.
@@ -633,7 +633,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: ^hello$
      * ```
      */
-    fun line(block: RegexBuilder.() -> Unit) {
+    public fun line(block: RegexBuilder.() -> Unit) {
         startOfLine()
         this.block()
         endOfLine()
@@ -651,7 +651,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: \Ahello\z
      * ```
      */
-    fun input(block: RegexBuilder.() -> Unit) {
+    public fun input(block: RegexBuilder.() -> Unit) {
         startOfInput()
         this.block()
         endOfInput()
@@ -665,7 +665,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Appends the dot character (`.`).
      * Matches any single character except line terminators.
      */
-    fun anyChar() = append(".")
+    public fun anyChar(): Unit = append(".")
 
     // =========================================================================
     // ASCII Character Ranges (Override for proper character class wrapping)
@@ -675,19 +675,19 @@ class RegexBuilder : CharacterRangeCapable {
      * Matches ASCII letters (`[a-zA-Z]`).
      * Overrides interface default to wrap in a single character class.
      */
-    override fun asciiLetter() = charClass { asciiLetter() }
+    public override fun asciiLetter(): Unit = charClass { asciiLetter() }
 
     /**
      * Matches ASCII alphanumeric characters (`[a-zA-Z0-9]`).
      * Overrides interface default to wrap in a single character class.
      */
-    override fun asciiAlphanumeric() = charClass { asciiAlphanumeric() }
+    public override fun asciiAlphanumeric(): Unit = charClass { asciiAlphanumeric() }
 
     /**
      * Matches hexadecimal digit characters (`[0-9a-fA-F]`).
      * Overrides interface default to wrap in a single character class.
      */
-    override fun hexDigit() = charClass { hexDigit() }
+    public override fun hexDigit(): Unit = charClass { hexDigit() }
 
     /**
      * Creates a character class with ASCII character ranges using a builder.
@@ -707,7 +707,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param block The builder block for specifying ASCII ranges.
      * @since 0.2.0
      */
-    override fun ascii(block: AsciiBuilder.() -> Unit) {
+    public override fun ascii(block: AsciiBuilder.() -> Unit) {
         val charClassBuilder = CharClassBuilder()
         val asciiBuilder = AsciiBuilder(charClassBuilder)
         asciiBuilder.block()
@@ -732,7 +732,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param block The builder block for specifying POSIX classes.
      * @since 0.3.0
      */
-    override fun posix(block: PosixBuilder.() -> Unit) {
+    public override fun posix(block: PosixBuilder.() -> Unit) {
         val charClassBuilder = CharClassBuilder()
         val posixBuilder = PosixBuilder(charClassBuilder)
         posixBuilder.block()
@@ -758,7 +758,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param block The builder block for specifying Unicode classes.
      * @since 0.3.0
      */
-    override fun unicode(block: UnicodeBuilder.() -> Unit) {
+    public override fun unicode(block: UnicodeBuilder.() -> Unit) {
         val charClassBuilder = CharClassBuilder()
         val unicodeBuilder = UnicodeBuilder(charClassBuilder)
         unicodeBuilder.block()
@@ -783,7 +783,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param block The builder block for specifying Hangul ranges.
      * @since 0.3.0
      */
-    override fun hangul(block: HangulBuilder.() -> Unit) {
+    public override fun hangul(block: HangulBuilder.() -> Unit) {
         val charClassBuilder = CharClassBuilder()
         val hangulBuilder = HangulBuilder(charClassBuilder)
         hangulBuilder.block()
@@ -802,14 +802,14 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * @param text The string to be matched literally.
      */
-    fun literal(text: String) = append(Regex.escape(text))
+    public fun literal(text: String): Unit = append(Regex.escape(text))
 
     /**
      * Appends a single character, automatically escaping if it's a special regex character.
      *
      * @param char The character to match.
      */
-    fun char(char: Char) = append(Regex.escape(char.toString()))
+    public fun char(char: Char): Unit = append(Regex.escape(char.toString()))
 
     /**
      * Appends a character set (`[...]`).
@@ -817,7 +817,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * @param chars The characters to include in the set (e.g., "abc" -> "[abc]").
      */
-    fun anyOf(chars: String) = append("[${escapeForCharClass(chars)}]")
+    public fun anyOf(chars: String): Unit = append("[${escapeForCharClass(chars)}]")
 
     /**
      * Creates a character class using a builder.
@@ -832,7 +832,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: [a-z\d]
      * ```
      */
-    fun anyOf(block: CharClassBuilder.() -> Unit) = charClass(block)
+    public fun anyOf(block: CharClassBuilder.() -> Unit): Unit = charClass(block)
 
     /**
      * Appends a negated character set (`[^...]`).
@@ -841,7 +841,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * @param chars The characters to exclude (e.g., "abc" -> "[^abc]").
      */
-    fun noneOf(chars: String) = append("[^${escapeForCharClass(chars)}]")
+    public fun noneOf(chars: String): Unit = append("[^${escapeForCharClass(chars)}]")
 
     /**
      * Creates a negated character class using a builder.
@@ -855,7 +855,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: [^0-9]
      * ```
      */
-    fun noneOf(block: CharClassBuilder.() -> Unit) = negatedCharClass(block)
+    public fun noneOf(block: CharClassBuilder.() -> Unit): Unit = negatedCharClass(block)
 
     /**
      * Appends a character range (`[a-z]`).
@@ -864,7 +864,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param end The ending character.
      * @throws IllegalArgumentException if start > end.
      */
-    override fun range(start: Char, end: Char) {
+    public override fun range(start: Char, end: Char) {
         require(start <= end) { "Range start must be <= end: '$start' > '$end'" }
         append("[$start-$end]")
     }
@@ -877,7 +877,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param end The ending character.
      * @throws IllegalArgumentException if start > end.
      */
-    fun notInRange(start: Char, end: Char) {
+    public fun notInRange(start: Char, end: Char) {
         require(start <= end) { "Range start must be <= end: '$start' > '$end'" }
         append("[^$start-$end]")
     }
@@ -895,7 +895,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: [a-zA-Z_]
      * ```
      */
-    fun charClass(block: CharClassBuilder.() -> Unit) {
+    public fun charClass(block: CharClassBuilder.() -> Unit) {
         val builder = CharClassBuilder()
         builder.block()
         append(builder.build())
@@ -912,7 +912,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: [^0-9]
      * ```
      */
-    fun negatedCharClass(block: CharClassBuilder.() -> Unit) {
+    public fun negatedCharClass(block: CharClassBuilder.() -> Unit) {
         val builder = CharClassBuilder(negated = true)
         builder.block()
         append(builder.build())
@@ -922,7 +922,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Appends a logical OR operator (`|`).
      * Note: Use this carefully. It's often safer to use `anyOf` for characters or strict grouping for blocks.
      */
-    fun or() = append("|")
+    public fun or(): Unit = append("|")
 
     /**
      * Creates an alternation group with multiple alternatives.
@@ -937,7 +937,7 @@ class RegexBuilder : CharacterRangeCapable {
      * // Results in: (?:cat|dog|bird)
      * ```
      */
-    fun either(vararg alternatives: RegexBuilder.() -> Unit) {
+    public fun either(vararg alternatives: RegexBuilder.() -> Unit) {
         require(alternatives.isNotEmpty()) { "At least one alternative is required" }
         append("(?:")
         alternatives.forEachIndexed { index, alt ->
@@ -955,7 +955,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Creates a capturing group `(...)`.
      * The content inside the block will be grouped and captured.
      */
-    fun capture(block: RegexBuilder.() -> Unit) {
+    public fun capture(block: RegexBuilder.() -> Unit) {
         append("(")
         this.block()
         append(")")
@@ -967,7 +967,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param name The name of the group (must be alphanumeric).
      * @throws IllegalArgumentException if name is empty or contains invalid characters.
      */
-    fun captureAs(name: String, block: RegexBuilder.() -> Unit) {
+    public fun captureAs(name: String, block: RegexBuilder.() -> Unit) {
         require(name.isNotEmpty()) { "Capture group name cannot be empty" }
         require(name.matches(Regex("^[a-zA-Z][a-zA-Z0-9]*$"))) {
             "Capture group name must start with a letter and contain only alphanumeric characters: '$name'"
@@ -981,7 +981,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Creates a non-capturing group `(?:...)`.
      * Used for grouping elements without saving the match result.
      */
-    fun group(block: RegexBuilder.() -> Unit) {
+    public fun group(block: RegexBuilder.() -> Unit) {
         append("(?:")
         this.block()
         append(")")
@@ -992,7 +992,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Once the pattern inside matches, the regex engine won't backtrack into it.
      * Useful for performance optimization.
      */
-    fun atomicGroup(block: RegexBuilder.() -> Unit) {
+    public fun atomicGroup(block: RegexBuilder.() -> Unit) {
         append("(?>")
         this.block()
         append(")")
@@ -1008,7 +1008,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param groupNumber The number of the capturing group (1-based).
      * @throws IllegalArgumentException if groupNumber < 1.
      */
-    fun backReference(groupNumber: Int) {
+    public fun backReference(groupNumber: Int) {
         require(groupNumber >= 1) { "Group number must be >= 1: $groupNumber" }
         append("\\$groupNumber")
     }
@@ -1019,7 +1019,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param name The name of the capturing group.
      * @throws IllegalArgumentException if name is empty.
      */
-    fun backReference(name: String) {
+    public fun backReference(name: String) {
         require(name.isNotEmpty()) { "Group name cannot be empty" }
         append("\\k<$name>")
     }
@@ -1156,7 +1156,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * @param mode The quantifier mode (default: GREEDY).
      */
-    fun optional(mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
+    public fun optional(mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
         val pattern = buildBlock(block)
         appendWithOptionalGroup(pattern)
         append("?${quantifierSuffix(mode)}")
@@ -1168,7 +1168,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * @param mode The quantifier mode (default: GREEDY).
      */
-    fun zeroOrMore(mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
+    public fun zeroOrMore(mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
         val pattern = buildBlock(block)
         appendWithOptionalGroup(pattern)
         append("*${quantifierSuffix(mode)}")
@@ -1180,7 +1180,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * @param mode The quantifier mode (default: GREEDY).
      */
-    fun oneOrMore(mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
+    public fun oneOrMore(mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
         val pattern = buildBlock(block)
         appendWithOptionalGroup(pattern)
         append("+${quantifierSuffix(mode)}")
@@ -1194,7 +1194,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param n The exact number of repetitions.
      * @throws IllegalArgumentException if n < 0.
      */
-    fun repeat(n: Int, block: RegexBuilder.() -> Unit) {
+    public fun repeat(n: Int, block: RegexBuilder.() -> Unit) {
         require(n >= 0) { "Repeat count must be non-negative: $n" }
         val pattern = buildBlock(block)
         appendWithOptionalGroup(pattern)
@@ -1211,7 +1211,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param mode The quantifier mode (default: GREEDY).
      * @throws IllegalArgumentException if min < 0, max < min.
      */
-    fun repeat(min: Int, max: Int, mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
+    public fun repeat(min: Int, max: Int, mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
         require(min >= 0) { "Minimum repeat count must be non-negative: $min" }
         require(max >= min) { "Maximum must be >= minimum: $max < $min" }
         val pattern = buildBlock(block)
@@ -1228,7 +1228,7 @@ class RegexBuilder : CharacterRangeCapable {
      * @param mode The quantifier mode (default: GREEDY).
      * @throws IllegalArgumentException if min < 0.
      */
-    fun atLeast(min: Int, mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
+    public fun atLeast(min: Int, mode: QuantifierMode = QuantifierMode.GREEDY, block: RegexBuilder.() -> Unit) {
         require(min >= 0) { "Minimum repeat count must be non-negative: $min" }
         val pattern = buildBlock(block)
         appendWithOptionalGroup(pattern)
@@ -1242,17 +1242,17 @@ class RegexBuilder : CharacterRangeCapable {
     /**
      * Lazy version of optional - matches 0 or 1 time, preferring 0.
      */
-    fun optionalLazy(block: RegexBuilder.() -> Unit) = optional(QuantifierMode.LAZY, block)
+    public fun optionalLazy(block: RegexBuilder.() -> Unit): Unit = optional(QuantifierMode.LAZY, block)
 
     /**
      * Lazy version of zeroOrMore - matches 0 or more times, preferring fewer.
      */
-    fun zeroOrMoreLazy(block: RegexBuilder.() -> Unit) = zeroOrMore(QuantifierMode.LAZY, block)
+    public fun zeroOrMoreLazy(block: RegexBuilder.() -> Unit): Unit = zeroOrMore(QuantifierMode.LAZY, block)
 
     /**
      * Lazy version of oneOrMore - matches 1 or more times, preferring fewer.
      */
-    fun oneOrMoreLazy(block: RegexBuilder.() -> Unit) = oneOrMore(QuantifierMode.LAZY, block)
+    public fun oneOrMoreLazy(block: RegexBuilder.() -> Unit): Unit = oneOrMore(QuantifierMode.LAZY, block)
 
     // =========================================================================
     // Possessive Quantifiers (Convenience methods)
@@ -1261,17 +1261,17 @@ class RegexBuilder : CharacterRangeCapable {
     /**
      * Possessive version of optional - matches 0 or 1 time, no backtracking.
      */
-    fun optionalPossessive(block: RegexBuilder.() -> Unit) = optional(QuantifierMode.POSSESSIVE, block)
+    public fun optionalPossessive(block: RegexBuilder.() -> Unit): Unit = optional(QuantifierMode.POSSESSIVE, block)
 
     /**
      * Possessive version of zeroOrMore - matches 0 or more times, no backtracking.
      */
-    fun zeroOrMorePossessive(block: RegexBuilder.() -> Unit) = zeroOrMore(QuantifierMode.POSSESSIVE, block)
+    public fun zeroOrMorePossessive(block: RegexBuilder.() -> Unit): Unit = zeroOrMore(QuantifierMode.POSSESSIVE, block)
 
     /**
      * Possessive version of oneOrMore - matches 1 or more times, no backtracking.
      */
-    fun oneOrMorePossessive(block: RegexBuilder.() -> Unit) = oneOrMore(QuantifierMode.POSSESSIVE, block)
+    public fun oneOrMorePossessive(block: RegexBuilder.() -> Unit): Unit = oneOrMore(QuantifierMode.POSSESSIVE, block)
 
     // =========================================================================
     // Lookaround Assertions (Zero-width assertions)
@@ -1283,7 +1283,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * Example: `literal("q").lookAhead { literal("u") }` matches "q" only if followed by "u".
      */
-    fun lookAhead(block: RegexBuilder.() -> Unit) {
+    public fun lookAhead(block: RegexBuilder.() -> Unit) {
         append("(?=")
         this.block()
         append(")")
@@ -1295,7 +1295,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * Example: `literal("q").negativeLookAhead { literal("u") }` matches "q" only if NOT followed by "u".
      */
-    fun negativeLookAhead(block: RegexBuilder.() -> Unit) {
+    public fun negativeLookAhead(block: RegexBuilder.() -> Unit) {
         append("(?!")
         this.block()
         append(")")
@@ -1307,7 +1307,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * Example: `lookBehind { literal("$") }.digit()` matches a digit only if preceded by "$".
      */
-    fun lookBehind(block: RegexBuilder.() -> Unit) {
+    public fun lookBehind(block: RegexBuilder.() -> Unit) {
         append("(?<=")
         this.block()
         append(")")
@@ -1319,7 +1319,7 @@ class RegexBuilder : CharacterRangeCapable {
      *
      * Example: `negativeLookBehind { literal("-") }.digit()` matches a digit only if NOT preceded by "-".
      */
-    fun negativeLookBehind(block: RegexBuilder.() -> Unit) {
+    public fun negativeLookBehind(block: RegexBuilder.() -> Unit) {
         append("(?<!")
         this.block()
         append(")")
@@ -1332,7 +1332,7 @@ class RegexBuilder : CharacterRangeCapable {
     /**
      * Enables case-insensitive matching for the enclosed pattern.
      */
-    fun caseInsensitive(block: RegexBuilder.() -> Unit) {
+    public fun caseInsensitive(block: RegexBuilder.() -> Unit) {
         append("(?i:")
         this.block()
         append(")")
@@ -1342,7 +1342,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Enables multiline mode for the enclosed pattern.
      * In this mode, ^ and $ match at line boundaries.
      */
-    fun multiline(block: RegexBuilder.() -> Unit) {
+    public fun multiline(block: RegexBuilder.() -> Unit) {
         append("(?m:")
         this.block()
         append(")")
@@ -1352,7 +1352,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Enables dotall mode for the enclosed pattern.
      * In this mode, . matches any character including newlines.
      */
-    fun dotAll(block: RegexBuilder.() -> Unit) {
+    public fun dotAll(block: RegexBuilder.() -> Unit) {
         append("(?s:")
         this.block()
         append(")")
@@ -1362,7 +1362,7 @@ class RegexBuilder : CharacterRangeCapable {
      * Enables comments mode for the enclosed pattern.
      * Whitespace is ignored and # starts a comment.
      */
-    fun comments(block: RegexBuilder.() -> Unit) {
+    public fun comments(block: RegexBuilder.() -> Unit) {
         append("(?x:")
         this.block()
         append(")")
@@ -1389,37 +1389,37 @@ class RegexBuilder : CharacterRangeCapable {
  * @since 0.2.0
  */
 @KregexDsl
-class AsciiBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+public class AsciiBuilder internal constructor(private val delegate: CharacterRangeCapable) {
 
     /**
      * Adds ASCII lowercase letters range (a-z).
      */
-    fun lower() = delegate.asciiLowercase()
+    public fun lower(): Unit = delegate.asciiLowercase()
 
     /**
      * Adds ASCII uppercase letters range (A-Z).
      */
-    fun upper() = delegate.asciiUppercase()
+    public fun upper(): Unit = delegate.asciiUppercase()
 
     /**
      * Adds all ASCII letters (a-zA-Z).
      */
-    fun letter() = delegate.asciiLetter()
+    public fun letter(): Unit = delegate.asciiLetter()
 
     /**
      * Adds ASCII digit characters (0-9).
      */
-    fun digit() = delegate.asciiDigit()
+    public fun digit(): Unit = delegate.asciiDigit()
 
     /**
      * Adds ASCII alphanumeric characters (a-zA-Z0-9).
      */
-    fun alphanumeric() = delegate.asciiAlphanumeric()
+    public fun alphanumeric(): Unit = delegate.asciiAlphanumeric()
 
     /**
      * Adds hexadecimal digit characters (0-9a-fA-F).
      */
-    fun hexDigit() = delegate.hexDigit()
+    public fun hexDigit(): Unit = delegate.hexDigit()
 }
 
 /**
@@ -1441,72 +1441,72 @@ class AsciiBuilder internal constructor(private val delegate: CharacterRangeCapa
  * @since 0.3.0
  */
 @KregexDsl
-class PosixBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+public class PosixBuilder internal constructor(private val delegate: CharacterRangeCapable) {
 
     /**
      * Matches alphanumeric characters (`\p{Alnum}`).
      */
-    fun alnum() = delegate.posixAlnum()
+    public fun alnum(): Unit = delegate.posixAlnum()
 
     /**
      * Matches alphabetic characters (`\p{Alpha}`).
      */
-    fun alpha() = delegate.posixAlpha()
+    public fun alpha(): Unit = delegate.posixAlpha()
 
     /**
      * Matches ASCII characters (`\p{ASCII}`).
      */
-    fun ascii() = delegate.posixAscii()
+    public fun ascii(): Unit = delegate.posixAscii()
 
     /**
      * Matches blank characters (`\p{Blank}`).
      */
-    fun blank() = delegate.posixBlank()
+    public fun blank(): Unit = delegate.posixBlank()
 
     /**
      * Matches control characters (`\p{Cntrl}`).
      */
-    fun cntrl() = delegate.posixCntrl()
+    public fun cntrl(): Unit = delegate.posixCntrl()
 
     /**
      * Matches digit characters (`\p{Digit}`).
      */
-    fun digit() = delegate.posixDigit()
+    public fun digit(): Unit = delegate.posixDigit()
 
     /**
      * Matches visible characters (`\p{Graph}`).
      */
-    fun graph() = delegate.posixGraph()
+    public fun graph(): Unit = delegate.posixGraph()
 
     /**
      * Matches lowercase letters (`\p{Lower}`).
      */
-    fun lower() = delegate.posixLower()
+    public fun lower(): Unit = delegate.posixLower()
 
     /**
      * Matches printable characters (`\p{Print}`).
      */
-    fun print() = delegate.posixPrint()
+    public fun print(): Unit = delegate.posixPrint()
 
     /**
      * Matches punctuation characters (`\p{Punct}`).
      */
-    fun punct() = delegate.posixPunct()
+    public fun punct(): Unit = delegate.posixPunct()
 
     /**
      * Matches whitespace characters (`\p{Space}`).
      */
-    fun space() = delegate.posixSpace()
+    public fun space(): Unit = delegate.posixSpace()
 
     /**
      * Matches uppercase letters (`\p{Upper}`).
      */
-    fun upper() = delegate.posixUpper()
+    public fun upper(): Unit = delegate.posixUpper()
 
     /**
      * Matches hexadecimal digits (`\p{XDigit}`).
      */
-    fun xdigit() = delegate.posixXDigit()
+    public fun xdigit(): Unit = delegate.posixXDigit()
 }
 
 /**
@@ -1529,57 +1529,57 @@ class PosixBuilder internal constructor(private val delegate: CharacterRangeCapa
  * @since 0.3.0
  */
 @KregexDsl
-class UnicodeBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+public class UnicodeBuilder internal constructor(private val delegate: CharacterRangeCapable) {
 
     /**
      * Matches characters with the specified Unicode property (`\p{...}`).
      */
-    fun property(property: String) = delegate.unicodeProperty(property)
+    public fun property(property: String): Unit = delegate.unicodeProperty(property)
 
     /**
      * Matches characters WITHOUT the specified Unicode property (`\P{...}`).
      */
-    fun notProperty(property: String) = delegate.notUnicodeProperty(property)
+    public fun notProperty(property: String): Unit = delegate.notUnicodeProperty(property)
 
     /**
      * Matches characters in the specified Unicode script (`\p{Is...}`).
      */
-    fun script(script: String) = delegate.unicodeScript(script)
+    public fun script(script: String): Unit = delegate.unicodeScript(script)
 
     /**
      * Matches characters in the specified Unicode block (`\p{In...}`).
      */
-    fun block(block: String) = delegate.unicodeBlock(block)
+    public fun block(block: String): Unit = delegate.unicodeBlock(block)
 
     /**
      * Matches any Unicode letter character (`\p{L}`).
      */
-    fun letter() = delegate.unicodeLetter()
+    public fun letter(): Unit = delegate.unicodeLetter()
 
     /**
      * Matches any Unicode uppercase letter (`\p{Lu}`).
      */
-    fun uppercaseLetter() = delegate.unicodeUppercaseLetter()
+    public fun uppercaseLetter(): Unit = delegate.unicodeUppercaseLetter()
 
     /**
      * Matches any Unicode lowercase letter (`\p{Ll}`).
      */
-    fun lowercaseLetter() = delegate.unicodeLowercaseLetter()
+    public fun lowercaseLetter(): Unit = delegate.unicodeLowercaseLetter()
 
     /**
      * Matches any Unicode numeric character (`\p{N}`).
      */
-    fun number() = delegate.unicodeNumber()
+    public fun number(): Unit = delegate.unicodeNumber()
 
     /**
      * Matches any Unicode punctuation character (`\p{P}`).
      */
-    fun punctuation() = delegate.unicodePunctuation()
+    public fun punctuation(): Unit = delegate.unicodePunctuation()
 
     /**
      * Matches any Unicode symbol character (`\p{S}`).
      */
-    fun symbol() = delegate.unicodeSymbol()
+    public fun symbol(): Unit = delegate.unicodeSymbol()
 }
 
 /**
@@ -1602,27 +1602,27 @@ class UnicodeBuilder internal constructor(private val delegate: CharacterRangeCa
  * @since 0.3.0
  */
 @KregexDsl
-class HangulBuilder internal constructor(private val delegate: CharacterRangeCapable) {
+public class HangulBuilder internal constructor(private val delegate: CharacterRangeCapable) {
 
     /**
      * Matches Hangul syllables (완성형 한글: 가-힣).
      */
-    fun syllable() = delegate.hangulSyllable()
+    public fun syllable(): Unit = delegate.hangulSyllable()
 
     /**
      * Matches Hangul Jamo (한글 자모: ㄱ-ㅣ).
      */
-    fun jamo() = delegate.hangulJamo()
+    public fun jamo(): Unit = delegate.hangulJamo()
 
     /**
      * Matches Hangul consonants (한글 자음: ㄱ-ㅎ).
      */
-    fun consonant() = delegate.hangulConsonant()
+    public fun consonant(): Unit = delegate.hangulConsonant()
 
     /**
      * Matches Hangul vowels (한글 모음: ㅏ-ㅣ).
      */
-    fun vowel() = delegate.hangulVowel()
+    public fun vowel(): Unit = delegate.hangulVowel()
 }
 
 /**
@@ -1634,7 +1634,7 @@ class HangulBuilder internal constructor(private val delegate: CharacterRangeCap
  * @param negated If true, creates a negated character class [^...].
  */
 @KregexDsl
-class CharClassBuilder(private val negated: Boolean = false) : CharacterRangeCapable {
+public class CharClassBuilder(private val negated: Boolean = false) : CharacterRangeCapable {
     private val buffer = StringBuilder()
 
     /**
@@ -1644,7 +1644,7 @@ class CharClassBuilder(private val negated: Boolean = false) : CharacterRangeCap
      * @param end The ending character.
      * @throws IllegalArgumentException if start > end.
      */
-    override fun range(start: Char, end: Char) {
+    public override fun range(start: Char, end: Char) {
         require(start <= end) { "Range start must be <= end: '$start' > '$end'" }
         buffer.append("$start-$end")
     }
@@ -1655,7 +1655,7 @@ class CharClassBuilder(private val negated: Boolean = false) : CharacterRangeCap
      *
      * @param chars The characters to add.
      */
-    fun chars(chars: String) {
+    public fun chars(chars: String) {
         buffer.append(escapeForCharClass(chars))
     }
 
@@ -1663,14 +1663,14 @@ class CharClassBuilder(private val negated: Boolean = false) : CharacterRangeCap
      * Adds a single character to the class.
      * Special characters are automatically escaped.
      */
-    fun char(c: Char) = chars(c.toString())
+    public fun char(c: Char): Unit = chars(c.toString())
 
     /**
      * Implementation of [CharacterRangeCapable.appendRaw].
      * Adds a raw pattern to the class without escaping.
      * Use with caution.
      */
-    override fun appendRaw(pattern: String) {
+    public override fun appendRaw(pattern: String) {
         buffer.append(pattern)
     }
 

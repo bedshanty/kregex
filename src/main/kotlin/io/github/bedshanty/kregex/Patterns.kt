@@ -27,7 +27,7 @@ package io.github.bedshanty.kregex
  * assertTrue(pattern.matches("user@example.com"))
  * ```
  */
-fun RegexBuilder.email() {
+public fun RegexBuilder.email() {
     // Local part: word chars, dots, and special chars
     oneOrMore {
         anyOf {
@@ -91,7 +91,7 @@ private const val DEFAULT_PASSWORD_SPECIAL_CHARS = " !\"#$%&'()*+,-./:;<=>?@[\\]
  * assertFalse(pattern.matches("password"))  // missing uppercase, digit, special
  * ```
  */
-fun RegexBuilder.password(
+public fun RegexBuilder.password(
     minLength: Int = 8,
     maxLength: Int? = 256,
     requireUppercase: Boolean = false,
@@ -160,7 +160,7 @@ fun RegexBuilder.password(
  * assertTrue(pattern.matches("http://sub.example.com/path?query=1"))
  * ```
  */
-fun RegexBuilder.httpUrl() {
+public fun RegexBuilder.httpUrl() {
     // Protocol
     literal("http")
     optional { literal("s") }
@@ -209,7 +209,7 @@ fun RegexBuilder.httpUrl() {
  * println(match.groups["path"]?.value)     // /path
  * ```
  */
-fun RegexBuilder.httpUrlWithCapture() {
+public fun RegexBuilder.httpUrlWithCapture() {
     captureAs("protocol") {
         literal("http")
         optional { literal("s") }
@@ -263,7 +263,7 @@ fun RegexBuilder.httpUrlWithCapture() {
  * assertTrue(pattern.matches("10.0.0.1"))
  * ```
  */
-fun RegexBuilder.ipv4() {
+public fun RegexBuilder.ipv4() {
     // First octet
     repeat(1, 3) { digit() }
     // Remaining three octets
@@ -287,7 +287,7 @@ fun RegexBuilder.ipv4() {
  * assertFalse(pattern.matches("256.1.1.1"))
  * ```
  */
-fun RegexBuilder.ipv4Strict() {
+public fun RegexBuilder.ipv4Strict() {
     val octet: RegexBuilder.() -> Unit = {
         either(
             { literal("25"); range('0', '5') },                    // 250-255
@@ -311,7 +311,7 @@ fun RegexBuilder.ipv4Strict() {
  * Note: This is a simplified pattern that matches the basic format.
  * It doesn't handle all IPv6 shorthand notations (:: compression).
  */
-fun RegexBuilder.ipv6() {
+public fun RegexBuilder.ipv6() {
     // First group
     repeat(1, 4) {
         anyOf { hexDigit() }
@@ -349,7 +349,7 @@ fun RegexBuilder.ipv6() {
  * assertTrue(pattern.matches("+1-123-456-7890"))
  * ```
  */
-fun RegexBuilder.phoneNumber() {
+public fun RegexBuilder.phoneNumber() {
     // Optional country code
     optional {
         literal("+")
@@ -378,7 +378,7 @@ fun RegexBuilder.phoneNumber() {
  * Appends a US phone number pattern.
  * Matches: (XXX) XXX-XXXX or XXX-XXX-XXXX format.
  */
-fun RegexBuilder.usPhoneNumber() {
+public fun RegexBuilder.usPhoneNumber() {
     either(
         {
             // (XXX) XXX-XXXX
@@ -417,7 +417,7 @@ fun RegexBuilder.usPhoneNumber() {
  * assertTrue(pattern.matches("2026-01-15"))
  * ```
  */
-fun RegexBuilder.isoDate() {
+public fun RegexBuilder.isoDate() {
     repeat(4) { digit() }  // Year
     literal("-")
     repeat(2) { digit() }  // Month
@@ -439,7 +439,7 @@ fun RegexBuilder.isoDate() {
  * assertTrue(pattern.matches("14:30:59"))
  * ```
  */
-fun RegexBuilder.time() {
+public fun RegexBuilder.time() {
     repeat(2) { digit() }  // Hours
     literal(":")
     repeat(2) { digit() }  // Minutes
@@ -452,7 +452,7 @@ fun RegexBuilder.time() {
 /**
  * Appends an ISO 8601 datetime pattern (YYYY-MM-DDTHH:MM:SS).
  */
-fun RegexBuilder.isoDateTime() {
+public fun RegexBuilder.isoDateTime() {
     isoDate()
     literal("T")
     time()
@@ -487,7 +487,7 @@ fun RegexBuilder.isoDateTime() {
  * assertTrue(pattern.matches("550e8400-e29b-41d4-a716-446655440000"))
  * ```
  */
-fun RegexBuilder.uuid() {
+public fun RegexBuilder.uuid() {
     val hexChar: RegexBuilder.() -> Unit = {
         anyOf { hexDigit() }
     }
@@ -516,7 +516,7 @@ fun RegexBuilder.uuid() {
  * assertTrue(pattern.matches("#FF5733"))
  * ```
  */
-fun RegexBuilder.hexColor() {
+public fun RegexBuilder.hexColor() {
     literal("#")
     either(
         {
@@ -556,7 +556,7 @@ fun RegexBuilder.hexColor() {
  * assertTrue(pattern.matches("my-blog-post-123"))
  * ```
  */
-fun RegexBuilder.slug() {
+public fun RegexBuilder.slug() {
     oneOrMore {
         anyOf {
             asciiLowercase()
@@ -582,7 +582,7 @@ fun RegexBuilder.slug() {
  * assertTrue(pattern.matches("1.0.0-beta+build.123"))
  * ```
  */
-fun RegexBuilder.semver() {
+public fun RegexBuilder.semver() {
     // MAJOR.MINOR.PATCH
     oneOrMore { digit() }
     literal(".")
@@ -626,7 +626,7 @@ fun RegexBuilder.semver() {
  * assertTrue(pattern.containsMatchIn("Hello world"))
  * ```
  */
-fun RegexBuilder.word() {
+public fun RegexBuilder.word() {
     oneOrMore { wordChar() }
 }
 
@@ -645,7 +645,7 @@ fun RegexBuilder.word() {
  * assertTrue(pattern.matches("+789"))
  * ```
  */
-fun RegexBuilder.integer() {
+public fun RegexBuilder.integer() {
     optional { anyOf("+-") }
     oneOrMore { digit() }
 }
@@ -665,7 +665,7 @@ fun RegexBuilder.integer() {
  * assertTrue(pattern.matches(".25"))
  * ```
  */
-fun RegexBuilder.decimal() {
+public fun RegexBuilder.decimal() {
     optional { anyOf("+-") }
     either(
         {
@@ -694,7 +694,7 @@ fun RegexBuilder.decimal() {
  * assertTrue(pattern.containsMatchIn("say \"hello\""))
  * ```
  */
-fun RegexBuilder.quotedString() {
+public fun RegexBuilder.quotedString() {
     literal("\"")
     zeroOrMore {
         either(
@@ -712,7 +712,7 @@ fun RegexBuilder.quotedString() {
  * Appends a single-quoted string pattern.
  * Handles escaped quotes inside the string.
  */
-fun RegexBuilder.singleQuotedString() {
+public fun RegexBuilder.singleQuotedString() {
     literal("'")
     zeroOrMore {
         either(

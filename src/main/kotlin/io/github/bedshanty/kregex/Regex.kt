@@ -27,7 +27,7 @@ package io.github.bedshanty.kregex
  * @return A compiled [Regex] object ready for matching.
  * @since 0.1.0
  */
-inline fun regex(
+public inline fun regex(
     vararg options: RegexOption,
     block: RegexBuilder.() -> Unit
 ): Regex {
