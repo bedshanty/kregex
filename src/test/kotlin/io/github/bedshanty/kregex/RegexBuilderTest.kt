@@ -2039,4 +2039,190 @@ class RegexBuilderTest {
         }
         assertEquals("[\\p{Alnum}]+[\\p{P}]*[가-힣]?", pattern.pattern)
     }
+
+    // =========================================================================
+    // Password Pattern Tests
+    // =========================================================================
+
+    @Test
+    fun `password with all requirements`() {
+        val pattern = regex {
+            line {
+                password(
+                    minLength = 8,
+                    maxLength = 20,
+                    requireUppercase = true,
+                    requireLowercase = true,
+                    requireDigit = true,
+                    requireSpecialChar = true
+                )
+            }
+        }
+        assertTrue(pattern.matches("Password1!"))
+        assertTrue(pattern.matches("Str0ng@Pass"))
+        assertTrue(pattern.matches("Aa1!Aa1!"))
+        assertFalse(pattern.matches("password1!"))    // no uppercase
+        assertFalse(pattern.matches("PASSWORD1!"))    // no lowercase
+        assertFalse(pattern.matches("Password!!"))    // no digit
+        assertFalse(pattern.matches("Password1"))     // no special
+        assertFalse(pattern.matches("Pass1!"))        // too short
+        assertFalse(pattern.matches("Password1!TooLongPassword123"))  // too long
+    }
+
+    @Test
+    fun `password with custom special chars`() {
+        val pattern = regex {
+            line {
+                password(
+                    minLength = 8,
+                    requireSpecialChar = true,
+                    allowedSpecialChars = "!@#"
+                )
+            }
+        }
+        assertTrue(pattern.matches("password!"))
+        assertTrue(pattern.matches("password@"))
+        assertTrue(pattern.matches("password#"))
+        assertFalse(pattern.matches("password\$"))  // $ not in allowedSpecialChars
+        assertFalse(pattern.matches("password%"))   // % not in allowedSpecialChars
+    }
+
+    @Test
+    fun `password rejects non-allowed characters`() {
+        val pattern = regex {
+            line { password(minLength = 8) }
+        }
+        assertTrue(pattern.matches("pass word"))      // space IS allowed (OWASP set includes space)
+        assertFalse(pattern.matches("비밀번호12345678"))  // Korean not allowed
+        assertFalse(pattern.matches("pass\tword"))    // tab not allowed
+        assertFalse(pattern.matches("pässwörd"))      // non-ASCII letters not allowed
+    }
+
+    @Test
+    fun `password with length only`() {
+        val pattern = regex {
+            line { password(minLength = 6) }
+        }
+        assertTrue(pattern.matches("abcdef"))
+        assertTrue(pattern.matches("123456"))
+        assertTrue(pattern.matches("abc123"))
+        assertFalse(pattern.matches("abc"))  // too short
+        assertFalse(pattern.matches("ab"))   // too short
+    }
+
+    @Test
+    fun `password with no max length`() {
+        val pattern = regex {
+            line { password(minLength = 8, maxLength = null) }
+        }
+        assertTrue(pattern.matches("a".repeat(100)))  // long password OK
+        assertTrue(pattern.matches("a".repeat(500)))  // very long password OK when maxLength = null
+    }
+
+    @Test
+    fun `password with default max length`() {
+        val pattern = regex {
+            line { password(minLength = 8) }
+        }
+        assertTrue(pattern.matches("a".repeat(256)))   // exactly 256 chars OK (default maxLength)
+        assertFalse(pattern.matches("a".repeat(257)))  // 257 chars exceeds default maxLength
+    }
+
+    @Test
+    fun `password with minLength 1 works`() {
+        val pattern = regex {
+            line { password(minLength = 1, maxLength = 10) }
+        }
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("!"))
+        assertTrue(pattern.matches("1"))
+        assertFalse(pattern.matches(""))  // empty not allowed
+    }
+
+    @Test
+    fun `password with only uppercase requirement`() {
+        val pattern = regex {
+            line {
+                password(
+                    minLength = 8,
+                    requireUppercase = true
+                )
+            }
+        }
+        assertTrue(pattern.matches("Password"))
+        assertTrue(pattern.matches("AAAAAAAA"))
+        assertFalse(pattern.matches("password"))  // no uppercase
+        assertFalse(pattern.matches("12345678"))  // no uppercase
+    }
+
+    @Test
+    fun `password with only lowercase requirement`() {
+        val pattern = regex {
+            line {
+                password(
+                    minLength = 8,
+                    requireLowercase = true
+                )
+            }
+        }
+        assertTrue(pattern.matches("Password"))
+        assertTrue(pattern.matches("aaaaaaaa"))
+        assertFalse(pattern.matches("PASSWORD"))  // no lowercase
+        assertFalse(pattern.matches("12345678"))  // no lowercase
+    }
+
+    @Test
+    fun `password with only digit requirement`() {
+        val pattern = regex {
+            line {
+                password(
+                    minLength = 8,
+                    requireDigit = true
+                )
+            }
+        }
+        assertTrue(pattern.matches("password1"))
+        assertTrue(pattern.matches("12345678"))
+        assertFalse(pattern.matches("password"))  // no digit
+        assertFalse(pattern.matches("PASSWORD"))  // no digit
+    }
+
+    @Test
+    fun `password with only special char requirement`() {
+        val pattern = regex {
+            line {
+                password(
+                    minLength = 8,
+                    requireSpecialChar = true
+                )
+            }
+        }
+        assertTrue(pattern.matches("!@#\$%^&*"))   // only special chars
+        assertTrue(pattern.matches("aaaaaa!a"))   // has special char
+        assertFalse(pattern.matches("aaaaaaaa"))  // no special char
+        assertFalse(pattern.matches("12345678"))  // no special char
+    }
+
+    @Test
+    fun `password validates minLength parameter`() {
+        assertFailsWith<IllegalArgumentException> {
+            regex {
+                password(minLength = 0)
+            }
+        }
+        assertFailsWith<IllegalArgumentException> {
+            regex {
+                password(minLength = -1)
+            }
+        }
+    }
+
+    @Test
+    fun `password validates maxLength parameter`() {
+        assertFailsWith<IllegalArgumentException> {
+            regex {
+                password(minLength = 10, maxLength = 5)  // maxLength < minLength
+            }
+        }
+    }
 }
