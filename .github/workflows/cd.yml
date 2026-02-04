@@ -6,7 +6,8 @@ on:
       - '*'
 
 jobs:
-  publish:
+  # Publish from Linux (JVM, JS, Linux Native)
+  publish-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -24,8 +25,59 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Publish to Maven Central
-        run: ./gradlew publishAndReleaseToMavenCentral
+      - name: Publish JVM, JS, and Linux Native to Maven Central
+        run: ./gradlew publishKotlinMultiplatformPublicationToMavenCentralRepository publishJvmPublicationToMavenCentralRepository publishJsPublicationToMavenCentralRepository publishLinuxX64PublicationToMavenCentralRepository publishLinuxArm64PublicationToMavenCentralRepository
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+
+  # Publish from macOS (Apple Native targets)
+  publish-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Publish Apple Native to Maven Central
+        run: ./gradlew publishMacosX64PublicationToMavenCentralRepository publishMacosArm64PublicationToMavenCentralRepository publishIosX64PublicationToMavenCentralRepository publishIosArm64PublicationToMavenCentralRepository publishIosSimulatorArm64PublicationToMavenCentralRepository
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
+
+  # Publish from Windows (Windows Native)
+  publish-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Publish Windows Native to Maven Central
+        run: ./gradlew publishMingwX64PublicationToMavenCentralRepository
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
