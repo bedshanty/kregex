@@ -88,194 +88,6 @@ public interface CharacterRangeCapable {
     }
 
     // =========================================================================
-    // Unicode Support
-    // =========================================================================
-
-    // Unicode support methods are inherited from CharacterRangeCapable interface:
-    // - unicodeProperty(), notUnicodeProperty()
-    // - unicodeScript(), unicodeBlock()
-    // - unicodeLetter(), unicodeUppercaseLetter(), unicodeLowercaseLetter()
-    // - unicodeNumber(), unicodePunctuation(), unicodeSymbol()
-
-    /**
-     * Appends a Unicode property class (`\p{...}`).
-     * Matches any character with the specified Unicode property.
-     *
-     * @param property The Unicode property name.
-     */
-    public fun unicodeProperty(property: String) {
-        appendRaw("\\p{$property}")
-    }
-
-    /**
-     * Appends a negated Unicode property class (`\P{...}`).
-     * Matches any character that does NOT have the specified Unicode property.
-     *
-     * @param property The Unicode property name.
-     */
-    public fun notUnicodeProperty(property: String) {
-        appendRaw("\\P{$property}")
-    }
-
-    /**
-     * Appends a Unicode script class (`\p{Is...}`).
-     *
-     * @param script The Unicode script name (e.g., "Greek", "Cyrillic", "Han").
-     */
-    public fun unicodeScript(script: String) {
-        appendRaw("\\p{Is$script}")
-    }
-
-    /**
-     * Appends a Unicode block class (`\p{In...}`).
-     *
-     * @param block The Unicode block name (e.g., "BasicLatin", "CJKUnifiedIdeographs").
-     */
-    public fun unicodeBlock(block: String) {
-        appendRaw("\\p{In$block}")
-    }
-
-    // =========================================================================
-    // Unicode Convenience Methods
-    // =========================================================================
-
-    /**
-     * Matches any Unicode letter character (`\p{L}`).
-     */
-    public fun unicodeLetter(): Unit = unicodeProperty("L")
-
-    /**
-     * Matches any Unicode uppercase letter (`\p{Lu}`).
-     */
-    public fun unicodeUppercaseLetter(): Unit = unicodeProperty("Lu")
-
-    /**
-     * Matches any Unicode lowercase letter (`\p{Ll}`).
-     */
-    public fun unicodeLowercaseLetter(): Unit = unicodeProperty("Ll")
-
-    /**
-     * Matches any Unicode numeric character (`\p{N}`).
-     */
-    public fun unicodeNumber(): Unit = unicodeProperty("N")
-
-    /**
-     * Matches any Unicode punctuation character (`\p{P}`).
-     */
-    public fun unicodePunctuation(): Unit = unicodeProperty("P")
-
-    /**
-     * Matches any Unicode symbol character (`\p{S}`).
-     */
-    public fun unicodeSymbol(): Unit = unicodeProperty("S")
-
-    // =========================================================================
-    // POSIX Character Classes
-    // =========================================================================
-
-    /**
-     * Matches alphanumeric characters (`\p{Alnum}`).
-     * Equivalent to `[a-zA-Z0-9]`.
-     */
-    public fun posixAlnum() {
-        appendRaw("\\p{Alnum}")
-    }
-
-    /**
-     * Matches alphabetic characters (`\p{Alpha}`).
-     * Equivalent to `[a-zA-Z]`.
-     */
-    public fun posixAlpha() {
-        appendRaw("\\p{Alpha}")
-    }
-
-    /**
-     * Matches ASCII characters (`\p{ASCII}`).
-     * Equivalent to `[\x00-\x7F]`.
-     */
-    public fun posixAscii() {
-        appendRaw("\\p{ASCII}")
-    }
-
-    /**
-     * Matches blank characters (`\p{Blank}`).
-     * Equivalent to `[ \t]` (space and tab).
-     */
-    public fun posixBlank() {
-        appendRaw("\\p{Blank}")
-    }
-
-    /**
-     * Matches control characters (`\p{Cntrl}`).
-     */
-    public fun posixCntrl() {
-        appendRaw("\\p{Cntrl}")
-    }
-
-    /**
-     * Matches digit characters (`\p{Digit}`).
-     * Equivalent to `[0-9]`.
-     */
-    public fun posixDigit() {
-        appendRaw("\\p{Digit}")
-    }
-
-    /**
-     * Matches visible characters (`\p{Graph}`).
-     * Printable characters excluding space.
-     */
-    public fun posixGraph() {
-        appendRaw("\\p{Graph}")
-    }
-
-    /**
-     * Matches lowercase letters (`\p{Lower}`).
-     * Equivalent to `[a-z]`.
-     */
-    public fun posixLower() {
-        appendRaw("\\p{Lower}")
-    }
-
-    /**
-     * Matches printable characters (`\p{Print}`).
-     * Visible characters plus space.
-     */
-    public fun posixPrint() {
-        appendRaw("\\p{Print}")
-    }
-
-    /**
-     * Matches punctuation characters (`\p{Punct}`).
-     */
-    public fun posixPunct() {
-        appendRaw("\\p{Punct}")
-    }
-
-    /**
-     * Matches whitespace characters (`\p{Space}`).
-     * Equivalent to `[ \t\n\r\f\v]`.
-     */
-    public fun posixSpace() {
-        appendRaw("\\p{Space}")
-    }
-
-    /**
-     * Matches uppercase letters (`\p{Upper}`).
-     * Equivalent to `[A-Z]`.
-     */
-    public fun posixUpper() {
-        appendRaw("\\p{Upper}")
-    }
-
-    /**
-     * Matches hexadecimal digits (`\p{XDigit}`).
-     * Equivalent to `[0-9a-fA-F]`.
-     */
-    public fun posixXDigit() {
-        appendRaw("\\p{XDigit}")
-    }
-
-    // =========================================================================
     // Korean (Hangul) Character Classes
     // =========================================================================
 
@@ -372,7 +184,7 @@ public interface CharacterRangeCapable {
     }
 
     // =========================================================================
-    // Control Characters
+    // Control Characters (Common)
     // =========================================================================
 
     /**
@@ -394,16 +206,6 @@ public interface CharacterRangeCapable {
      * Appends a form feed character (`\f`).
      */
     public fun formFeed(): Unit = appendRaw("\\f")
-
-    /**
-     * Appends an alert/bell character (`\a`).
-     */
-    public fun alert(): Unit = appendRaw("\\a")
-
-    /**
-     * Appends an escape character (`\e`).
-     */
-    public fun escape(): Unit = appendRaw("\\e")
 
     // =========================================================================
     // ASCII Builder
@@ -431,57 +233,6 @@ public interface CharacterRangeCapable {
      */
     public fun ascii(block: AsciiBuilder.() -> Unit) {
         val builder = AsciiBuilder(this)
-        builder.block()
-    }
-
-    // =========================================================================
-    // Builder Blocks for Character Class Groups
-    // =========================================================================
-
-    /**
-     * Adds POSIX character classes using a builder.
-     *
-     * This provides a convenient DSL for combining POSIX classes.
-     *
-     * Example:
-     * ```kotlin
-     * charClass {
-     *     posix {
-     *         alnum()    // \p{Alnum}
-     *         punct()    // \p{Punct}
-     *     }
-     * }
-     * ```
-     *
-     * @param block The builder block for specifying POSIX classes.
-     * @since 0.3.0
-     */
-    public fun posix(block: PosixBuilder.() -> Unit) {
-        val builder = PosixBuilder(this)
-        builder.block()
-    }
-
-    /**
-     * Adds Unicode character classes using a builder.
-     *
-     * This provides a convenient DSL for combining Unicode classes.
-     *
-     * Example:
-     * ```kotlin
-     * charClass {
-     *     unicode {
-     *         letter()       // \p{L}
-     *         number()       // \p{N}
-     *         script("Han")  // \p{IsHan}
-     *     }
-     * }
-     * ```
-     *
-     * @param block The builder block for specifying Unicode classes.
-     * @since 0.3.0
-     */
-    public fun unicode(block: UnicodeBuilder.() -> Unit) {
-        val builder = UnicodeBuilder(this)
         builder.block()
     }
 
@@ -535,9 +286,7 @@ public enum class QuantifierMode {
     /** Greedy mode (default) - matches as many characters as possible */
     GREEDY,
     /** Lazy/Reluctant mode - matches as few characters as possible */
-    LAZY,
-    /** Possessive mode - like greedy but doesn't backtrack */
-    POSSESSIVE
+    LAZY
 }
 
 /**
@@ -592,24 +341,6 @@ public class RegexBuilder : CharacterRangeCapable {
     public fun endOfLine(): Unit = append("$")
 
     /**
-     * Appends the start-of-input anchor (`\A`).
-     * Asserts that the current position is at the very beginning of the input.
-     */
-    public fun startOfInput(): Unit = append("\\A")
-
-    /**
-     * Appends the end-of-input anchor (`\z`).
-     * Asserts that the current position is at the very end of the input.
-     */
-    public fun endOfInput(): Unit = append("\\z")
-
-    /**
-     * Appends the end-of-input anchor (`\Z`).
-     * Asserts that the current position is at the end of the input, but before any final line terminator.
-     */
-    public fun endOfInputBeforeNewline(): Unit = append("\\Z")
-
-    /**
      * Appends a word boundary (`\b`).
      * Matches the position where a word character is not followed or preceded by another word-character.
      */
@@ -637,24 +368,6 @@ public class RegexBuilder : CharacterRangeCapable {
         startOfLine()
         this.block()
         endOfLine()
-    }
-
-    /**
-     * Wraps the block with start-of-input (`\A`) and end-of-input (`\z`) anchors.
-     * Use this to match the entire input.
-     *
-     * Example:
-     * ```kotlin
-     * regex {
-     *     input { literal("hello") }
-     * }
-     * // Results in: \Ahello\z
-     * ```
-     */
-    public fun input(block: RegexBuilder.() -> Unit) {
-        startOfInput()
-        this.block()
-        endOfInput()
     }
 
     // =========================================================================
@@ -711,57 +424,6 @@ public class RegexBuilder : CharacterRangeCapable {
         val charClassBuilder = CharClassBuilder()
         val asciiBuilder = AsciiBuilder(charClassBuilder)
         asciiBuilder.block()
-        append(charClassBuilder.build())
-    }
-
-    /**
-     * Creates a character class with POSIX character classes using a builder.
-     * Overrides interface default to wrap in a single character class.
-     *
-     * Example:
-     * ```kotlin
-     * regex {
-     *     posix {
-     *         alnum()    // \p{Alnum}
-     *         punct()    // \p{Punct}
-     *     }
-     * }
-     * // Result: [\p{Alnum}\p{Punct}]
-     * ```
-     *
-     * @param block The builder block for specifying POSIX classes.
-     * @since 0.3.0
-     */
-    public override fun posix(block: PosixBuilder.() -> Unit) {
-        val charClassBuilder = CharClassBuilder()
-        val posixBuilder = PosixBuilder(charClassBuilder)
-        posixBuilder.block()
-        append(charClassBuilder.build())
-    }
-
-    /**
-     * Creates a character class with Unicode character classes using a builder.
-     * Overrides interface default to wrap in a single character class.
-     *
-     * Example:
-     * ```kotlin
-     * regex {
-     *     unicode {
-     *         letter()       // \p{L}
-     *         number()       // \p{N}
-     *         script("Han")  // \p{IsHan}
-     *     }
-     * }
-     * // Result: [\p{L}\p{N}\p{IsHan}]
-     * ```
-     *
-     * @param block The builder block for specifying Unicode classes.
-     * @since 0.3.0
-     */
-    public override fun unicode(block: UnicodeBuilder.() -> Unit) {
-        val charClassBuilder = CharClassBuilder()
-        val unicodeBuilder = UnicodeBuilder(charClassBuilder)
-        unicodeBuilder.block()
         append(charClassBuilder.build())
     }
 
@@ -987,17 +649,6 @@ public class RegexBuilder : CharacterRangeCapable {
         append(")")
     }
 
-    /**
-     * Creates an atomic group `(?>...)`.
-     * Once the pattern inside matches, the regex engine won't backtrack into it.
-     * Useful for performance optimization.
-     */
-    public fun atomicGroup(block: RegexBuilder.() -> Unit) {
-        append("(?>")
-        this.block()
-        append(")")
-    }
-
     // =========================================================================
     // Back References
     // =========================================================================
@@ -1034,7 +685,6 @@ public class RegexBuilder : CharacterRangeCapable {
     private fun quantifierSuffix(mode: QuantifierMode): String = when (mode) {
         QuantifierMode.GREEDY -> ""
         QuantifierMode.LAZY -> "?"
-        QuantifierMode.POSSESSIVE -> "+"
     }
 
     /**
@@ -1047,7 +697,8 @@ public class RegexBuilder : CharacterRangeCapable {
      * - Already grouped patterns ((?:...), (...), etc.)
      * - Dot (.)
      */
-    private fun isSingleAtom(pattern: String): Boolean {
+    @PublishedApi
+    internal fun isSingleAtom(pattern: String): Boolean {
         if (pattern.isEmpty()) return false
 
         // Single character (not a special regex character that needs grouping)
@@ -1057,12 +708,10 @@ public class RegexBuilder : CharacterRangeCapable {
         if (pattern.length == 2 && pattern[0] == '\\') return true
 
         // Unicode property \p{...} or \P{...}
+        // This also handles Unicode script \p{Is...} and block \p{In...}
         if (pattern.startsWith("\\p{") || pattern.startsWith("\\P{")) {
             return pattern.endsWith("}") && pattern.count { it == '{' } == 1
         }
-
-        // Unicode script \p{Is...} or block \p{In...}
-        if (pattern.matches(Regex("^\\\\p\\{(Is|In)[^}]+}$"))) return true
 
         // Character class [...] - check for balanced brackets
         if (pattern.startsWith("[") && pattern.endsWith("]")) {
@@ -1130,7 +779,8 @@ public class RegexBuilder : CharacterRangeCapable {
     /**
      * Executes a block and returns the resulting pattern string.
      */
-    private fun buildBlock(block: RegexBuilder.() -> Unit): String {
+    @PublishedApi
+    internal fun buildBlock(block: RegexBuilder.() -> Unit): String {
         val inner = RegexBuilder()
         inner.block()
         return inner.build()
@@ -1141,7 +791,8 @@ public class RegexBuilder : CharacterRangeCapable {
      * If the pattern is a single atom, it's appended directly.
      * Otherwise, it's wrapped in a non-capturing group.
      */
-    private fun appendWithOptionalGroup(pattern: String) {
+    @PublishedApi
+    internal fun appendWithOptionalGroup(pattern: String) {
         if (isSingleAtom(pattern)) {
             append(pattern)
         } else {
@@ -1255,25 +906,6 @@ public class RegexBuilder : CharacterRangeCapable {
     public fun oneOrMoreLazy(block: RegexBuilder.() -> Unit): Unit = oneOrMore(QuantifierMode.LAZY, block)
 
     // =========================================================================
-    // Possessive Quantifiers (Convenience methods)
-    // =========================================================================
-
-    /**
-     * Possessive version of optional - matches 0 or 1 time, no backtracking.
-     */
-    public fun optionalPossessive(block: RegexBuilder.() -> Unit): Unit = optional(QuantifierMode.POSSESSIVE, block)
-
-    /**
-     * Possessive version of zeroOrMore - matches 0 or more times, no backtracking.
-     */
-    public fun zeroOrMorePossessive(block: RegexBuilder.() -> Unit): Unit = zeroOrMore(QuantifierMode.POSSESSIVE, block)
-
-    /**
-     * Possessive version of oneOrMore - matches 1 or more times, no backtracking.
-     */
-    public fun oneOrMorePossessive(block: RegexBuilder.() -> Unit): Unit = oneOrMore(QuantifierMode.POSSESSIVE, block)
-
-    // =========================================================================
     // Lookaround Assertions (Zero-width assertions)
     // =========================================================================
 
@@ -1305,7 +937,14 @@ public class RegexBuilder : CharacterRangeCapable {
      * Appends a Positive Lookbehind `(?<=...)`.
      * Asserts that the given pattern matches immediately before the current position.
      *
-     * Example: `lookBehind { literal("$") }.digit()` matches a digit only if preceded by "$".
+     * Example:
+     * ```kotlin
+     * regex {
+     *     lookBehind { literal("$") }
+     *     digit()
+     * }
+     * // Matches a digit only if preceded by "$"
+     * ```
      */
     public fun lookBehind(block: RegexBuilder.() -> Unit) {
         append("(?<=")
@@ -1317,53 +956,17 @@ public class RegexBuilder : CharacterRangeCapable {
      * Appends a Negative Lookbehind `(?<!...)`.
      * Asserts that the given pattern does NOT match immediately before the current position.
      *
-     * Example: `negativeLookBehind { literal("-") }.digit()` matches a digit only if NOT preceded by "-".
+     * Example:
+     * ```kotlin
+     * regex {
+     *     negativeLookBehind { literal("-") }
+     *     digit()
+     * }
+     * // Matches a digit only if NOT preceded by "-"
+     * ```
      */
     public fun negativeLookBehind(block: RegexBuilder.() -> Unit) {
         append("(?<!")
-        this.block()
-        append(")")
-    }
-
-    // =========================================================================
-    // Inline Modifiers
-    // =========================================================================
-
-    /**
-     * Enables case-insensitive matching for the enclosed pattern.
-     */
-    public fun caseInsensitive(block: RegexBuilder.() -> Unit) {
-        append("(?i:")
-        this.block()
-        append(")")
-    }
-
-    /**
-     * Enables multiline mode for the enclosed pattern.
-     * In this mode, ^ and $ match at line boundaries.
-     */
-    public fun multiline(block: RegexBuilder.() -> Unit) {
-        append("(?m:")
-        this.block()
-        append(")")
-    }
-
-    /**
-     * Enables dotall mode for the enclosed pattern.
-     * In this mode, . matches any character including newlines.
-     */
-    public fun dotAll(block: RegexBuilder.() -> Unit) {
-        append("(?s:")
-        this.block()
-        append(")")
-    }
-
-    /**
-     * Enables comments mode for the enclosed pattern.
-     * Whitespace is ignored and # starts a comment.
-     */
-    public fun comments(block: RegexBuilder.() -> Unit) {
-        append("(?x:")
         this.block()
         append(")")
     }
@@ -1420,166 +1023,6 @@ public class AsciiBuilder internal constructor(private val delegate: CharacterRa
      * Adds hexadecimal digit characters (0-9a-fA-F).
      */
     public fun hexDigit(): Unit = delegate.hexDigit()
-}
-
-/**
- * Builder for POSIX character classes within a character class.
- *
- * This builder provides a convenient DSL for adding POSIX character classes.
- * It can be used within [RegexBuilder.posix] or [CharClassBuilder.posix] blocks.
- *
- * Example:
- * ```kotlin
- * charClass {
- *     posix {
- *         alnum()    // \p{Alnum}
- *         punct()    // \p{Punct}
- *     }
- * }
- * ```
- *
- * @since 0.3.0
- */
-@KregexDsl
-public class PosixBuilder internal constructor(private val delegate: CharacterRangeCapable) {
-
-    /**
-     * Matches alphanumeric characters (`\p{Alnum}`).
-     */
-    public fun alnum(): Unit = delegate.posixAlnum()
-
-    /**
-     * Matches alphabetic characters (`\p{Alpha}`).
-     */
-    public fun alpha(): Unit = delegate.posixAlpha()
-
-    /**
-     * Matches ASCII characters (`\p{ASCII}`).
-     */
-    public fun ascii(): Unit = delegate.posixAscii()
-
-    /**
-     * Matches blank characters (`\p{Blank}`).
-     */
-    public fun blank(): Unit = delegate.posixBlank()
-
-    /**
-     * Matches control characters (`\p{Cntrl}`).
-     */
-    public fun cntrl(): Unit = delegate.posixCntrl()
-
-    /**
-     * Matches digit characters (`\p{Digit}`).
-     */
-    public fun digit(): Unit = delegate.posixDigit()
-
-    /**
-     * Matches visible characters (`\p{Graph}`).
-     */
-    public fun graph(): Unit = delegate.posixGraph()
-
-    /**
-     * Matches lowercase letters (`\p{Lower}`).
-     */
-    public fun lower(): Unit = delegate.posixLower()
-
-    /**
-     * Matches printable characters (`\p{Print}`).
-     */
-    public fun print(): Unit = delegate.posixPrint()
-
-    /**
-     * Matches punctuation characters (`\p{Punct}`).
-     */
-    public fun punct(): Unit = delegate.posixPunct()
-
-    /**
-     * Matches whitespace characters (`\p{Space}`).
-     */
-    public fun space(): Unit = delegate.posixSpace()
-
-    /**
-     * Matches uppercase letters (`\p{Upper}`).
-     */
-    public fun upper(): Unit = delegate.posixUpper()
-
-    /**
-     * Matches hexadecimal digits (`\p{XDigit}`).
-     */
-    public fun xdigit(): Unit = delegate.posixXDigit()
-}
-
-/**
- * Builder for Unicode character classes within a character class.
- *
- * This builder provides a convenient DSL for adding Unicode character classes.
- * It can be used within [RegexBuilder.unicode] or [CharClassBuilder.unicode] blocks.
- *
- * Example:
- * ```kotlin
- * charClass {
- *     unicode {
- *         letter()       // \p{L}
- *         number()       // \p{N}
- *         script("Han")  // \p{IsHan}
- *     }
- * }
- * ```
- *
- * @since 0.3.0
- */
-@KregexDsl
-public class UnicodeBuilder internal constructor(private val delegate: CharacterRangeCapable) {
-
-    /**
-     * Matches characters with the specified Unicode property (`\p{...}`).
-     */
-    public fun property(property: String): Unit = delegate.unicodeProperty(property)
-
-    /**
-     * Matches characters WITHOUT the specified Unicode property (`\P{...}`).
-     */
-    public fun notProperty(property: String): Unit = delegate.notUnicodeProperty(property)
-
-    /**
-     * Matches characters in the specified Unicode script (`\p{Is...}`).
-     */
-    public fun script(script: String): Unit = delegate.unicodeScript(script)
-
-    /**
-     * Matches characters in the specified Unicode block (`\p{In...}`).
-     */
-    public fun block(block: String): Unit = delegate.unicodeBlock(block)
-
-    /**
-     * Matches any Unicode letter character (`\p{L}`).
-     */
-    public fun letter(): Unit = delegate.unicodeLetter()
-
-    /**
-     * Matches any Unicode uppercase letter (`\p{Lu}`).
-     */
-    public fun uppercaseLetter(): Unit = delegate.unicodeUppercaseLetter()
-
-    /**
-     * Matches any Unicode lowercase letter (`\p{Ll}`).
-     */
-    public fun lowercaseLetter(): Unit = delegate.unicodeLowercaseLetter()
-
-    /**
-     * Matches any Unicode numeric character (`\p{N}`).
-     */
-    public fun number(): Unit = delegate.unicodeNumber()
-
-    /**
-     * Matches any Unicode punctuation character (`\p{P}`).
-     */
-    public fun punctuation(): Unit = delegate.unicodePunctuation()
-
-    /**
-     * Matches any Unicode symbol character (`\p{S}`).
-     */
-    public fun symbol(): Unit = delegate.unicodeSymbol()
 }
 
 /**

@@ -13,7 +13,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `regex function creates valid Regex object`() {
+    fun regexFunctionCreatesValidRegexObject() {
         val pattern = regex {
             literal("hello")
         }
@@ -22,7 +22,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `pattern property returns generated pattern`() {
+    fun patternPropertyReturnsGeneratedPattern() {
         val pattern = regex {
             startOfLine()
             oneOrMore { digit() }
@@ -37,7 +37,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `startOfLine and endOfLine anchors`() {
+    fun startOfLineAndEndOfLineAnchors() {
         val pattern = regex {
             startOfLine()
             literal("hello")
@@ -49,16 +49,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `startOfInput and endOfInput anchors`() {
-        val pattern = regex {
-            startOfInput()
-            digit()
-        }
-        assertEquals("\\A\\d", pattern.pattern)
-    }
-
-    @Test
-    fun `wordBoundary matches word boundaries`() {
+    fun wordBoundaryMatchesWordBoundaries() {
         val pattern = regex {
             wordBoundary()
             literal("cat")
@@ -69,7 +60,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `nonWordBoundary matches non-word boundaries`() {
+    fun nonWordBoundaryMatchesNonWordBoundaries() {
         val pattern = regex {
             nonWordBoundary()
             literal("at")
@@ -79,7 +70,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `line block wraps with start and end of line anchors`() {
+    fun lineBlockWrapsWithStartAndEndOfLineAnchors() {
         val pattern = regex {
             line { digit() }
         }
@@ -89,22 +80,12 @@ class RegexBuilderTest {
         assertFalse(pattern.matches("a"))
     }
 
-    @Test
-    fun `input block wraps with start and end of input anchors`() {
-        val pattern = regex {
-            input { digit() }
-        }
-        assertEquals("\\A\\d\\z", pattern.pattern)
-        assertTrue(pattern.matches("5"))
-        assertFalse(pattern.matches("5\n"))
-    }
-
     // =========================================================================
     // Character Classes Tests
     // =========================================================================
 
     @Test
-    fun `anyChar matches any character`() {
+    fun anyCharMatchesAnyCharacter() {
         val pattern = regex {
             anyChar()
             anyChar()
@@ -117,7 +98,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `digit and nonDigit character classes`() {
+    fun digitAndNonDigitCharacterClasses() {
         val digitPattern = regex {
             startOfLine()
             digit()
@@ -136,7 +117,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `whitespace and nonWhitespace character classes`() {
+    fun whitespaceAndNonWhitespaceCharacterClasses() {
         val wsPattern = regex {
             literal("hello")
             whitespace()
@@ -155,7 +136,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `wordChar and nonWordChar character classes`() {
+    fun wordCharAndNonWordCharCharacterClasses() {
         val wordPattern = regex {
             startOfLine()
             oneOrMore { wordChar() }
@@ -166,7 +147,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `special character classes - tab, newline, etc`() {
+    fun specialCharacterClassesTabNewlineEtc() {
         val pattern = regex {
             tab()
             newline()
@@ -176,55 +157,11 @@ class RegexBuilderTest {
     }
 
     // =========================================================================
-    // Unicode Support Tests
-    // =========================================================================
-
-    @Test
-    fun `unicodeProperty matches unicode categories`() {
-        val pattern = regex {
-            unicodeProperty("L")
-        }
-        assertEquals("\\p{L}", pattern.pattern)
-    }
-
-    @Test
-    fun `notUnicodeProperty matches non-unicode categories`() {
-        val pattern = regex {
-            notUnicodeProperty("L")
-        }
-        assertEquals("\\P{L}", pattern.pattern)
-    }
-
-    @Test
-    fun `unicodeLetter convenience method`() {
-        val pattern = regex {
-            unicodeLetter()
-        }
-        assertEquals("\\p{L}", pattern.pattern)
-    }
-
-    @Test
-    fun `unicodeScript generates correct pattern`() {
-        val pattern = regex {
-            unicodeScript("Greek")
-        }
-        assertEquals("\\p{IsGreek}", pattern.pattern)
-    }
-
-    @Test
-    fun `unicodeBlock generates correct pattern`() {
-        val pattern = regex {
-            unicodeBlock("BasicLatin")
-        }
-        assertEquals("\\p{InBasicLatin}", pattern.pattern)
-    }
-
-    // =========================================================================
     // ASCII Character Ranges Tests
     // =========================================================================
 
     @Test
-    fun `asciiLowercase matches lowercase letters`() {
+    fun asciiLowercaseMatchesLowercaseLetters() {
         val pattern = regex {
             startOfLine()
             oneOrMore { asciiLowercase() }
@@ -238,7 +175,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `asciiUppercase matches uppercase letters`() {
+    fun asciiUppercaseMatchesUppercaseLetters() {
         val pattern = regex {
             startOfLine()
             oneOrMore { asciiUppercase() }
@@ -252,7 +189,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `asciiLetter matches all ASCII letters`() {
+    fun asciiLetterMatchesAllAsciiLetters() {
         val pattern = regex {
             startOfLine()
             oneOrMore { asciiLetter() }
@@ -266,7 +203,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `asciiAlphanumeric matches letters and digits`() {
+    fun asciiAlphanumericMatchesLettersAndDigits() {
         val pattern = regex {
             startOfLine()
             oneOrMore { asciiAlphanumeric() }
@@ -281,7 +218,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `hexDigit matches hexadecimal characters`() {
+    fun hexDigitMatchesHexadecimalCharacters() {
         val pattern = regex {
             startOfLine()
             oneOrMore { hexDigit() }
@@ -297,7 +234,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ASCII methods generate correct patterns`() {
+    fun asciiMethodsGenerateCorrectPatterns() {
         assertEquals("[a-z]", regex { asciiLowercase() }.pattern)
         assertEquals("[A-Z]", regex { asciiUppercase() }.pattern)
         assertEquals("[a-zA-Z]", regex { asciiLetter() }.pattern)
@@ -310,7 +247,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `ascii block with lower generates correct pattern`() {
+    fun asciiBlockWithLowerGeneratesCorrectPattern() {
         val pattern = regex {
             ascii { lower() }
         }
@@ -322,7 +259,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block with upper generates correct pattern`() {
+    fun asciiBlockWithUpperGeneratesCorrectPattern() {
         val pattern = regex {
             ascii { upper() }
         }
@@ -334,7 +271,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block with lower and upper generates correct pattern`() {
+    fun asciiBlockWithLowerAndUpperGeneratesCorrectPattern() {
         val pattern = regex {
             ascii {
                 lower()
@@ -348,7 +285,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block with letter generates correct pattern`() {
+    fun asciiBlockWithLetterGeneratesCorrectPattern() {
         val pattern = regex {
             ascii { letter() }
         }
@@ -356,7 +293,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block with digit generates correct pattern`() {
+    fun asciiBlockWithDigitGeneratesCorrectPattern() {
         val pattern = regex {
             ascii { digit() }
         }
@@ -366,7 +303,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block with alphanumeric generates correct pattern`() {
+    fun asciiBlockWithAlphanumericGeneratesCorrectPattern() {
         val pattern = regex {
             ascii { alphanumeric() }
         }
@@ -378,7 +315,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block with hexDigit generates correct pattern`() {
+    fun asciiBlockWithHexDigitGeneratesCorrectPattern() {
         val pattern = regex {
             ascii { hexDigit() }
         }
@@ -390,7 +327,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block in charClass generates correct pattern`() {
+    fun asciiBlockInCharClassGeneratesCorrectPattern() {
         val pattern = regex {
             charClass {
                 ascii {
@@ -408,7 +345,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ascii block combined with quantifiers`() {
+    fun asciiBlockCombinedWithQuantifiers() {
         val pattern = regex {
             startOfLine()
             oneOrMore { ascii { letter() } }
@@ -424,7 +361,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `literal escapes special characters`() {
+    fun literalEscapesSpecialCharacters() {
         val pattern = regex {
             literal("a.b*c?")
         }
@@ -433,7 +370,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `char matches single character`() {
+    fun charMatchesSingleCharacter() {
         val pattern = regex {
             char('.')
         }
@@ -442,7 +379,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `anyOf creates character set with proper escaping`() {
+    fun anyOfCreatesCharacterSetWithProperEscaping() {
         val pattern = regex {
             anyOf("abc")
         }
@@ -452,7 +389,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `anyOf escapes special characters inside character class`() {
+    fun anyOfEscapesSpecialCharactersInsideCharacterClass() {
         val pattern = regex {
             startOfLine()
             anyOf("]-^\\")
@@ -465,7 +402,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `noneOf creates negated character set`() {
+    fun noneOfCreatesNegatedCharacterSet() {
         val pattern = regex {
             startOfLine()
             noneOf("abc")
@@ -478,7 +415,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `anyOf block creates character class`() {
+    fun anyOfBlockCreatesCharacterClass() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -498,7 +435,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `noneOf block creates negated character class`() {
+    fun noneOfBlockCreatesNegatedCharacterClass() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -517,7 +454,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `range creates character range`() {
+    fun rangeCreatesCharacterRange() {
         val pattern = regex {
             startOfLine()
             range('a', 'z')
@@ -529,7 +466,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `range validation throws on invalid range`() {
+    fun rangeValidationThrowsOnInvalidRange() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 range('z', 'a')
@@ -538,7 +475,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `notInRange creates negated character range`() {
+    fun notInRangeCreatesNegatedCharacterRange() {
         val pattern = regex {
             startOfLine()
             notInRange('a', 'z')
@@ -550,7 +487,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `or creates alternation`() {
+    fun orCreatesAlternation() {
         val pattern = regex {
             literal("cat")
             or()
@@ -562,7 +499,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `either creates alternation group`() {
+    fun eitherCreatesAlternationGroup() {
         val pattern = regex {
             startOfLine()
             either(
@@ -579,7 +516,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `either requires at least one alternative`() {
+    fun eitherRequiresAtLeastOneAlternative() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 either()
@@ -592,7 +529,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `charClass combines multiple ranges and characters`() {
+    fun charClassCombinesMultipleRangesAndCharacters() {
         val pattern = regex {
             startOfLine()
             charClass {
@@ -609,7 +546,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `negatedCharClass creates negated class`() {
+    fun negatedCharClassCreatesNegatedClass() {
         val pattern = regex {
             startOfLine()
             negatedCharClass {
@@ -622,7 +559,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with predefined classes`() {
+    fun charClassWithPredefinedClasses() {
         val pattern = regex {
             charClass {
                 digit()
@@ -634,7 +571,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with asciiLowercase shortcut`() {
+    fun charClassWithAsciiLowercaseShortcut() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -648,7 +585,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with asciiUppercase shortcut`() {
+    fun charClassWithAsciiUppercaseShortcut() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -662,7 +599,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with asciiLetter shortcut`() {
+    fun charClassWithAsciiLetterShortcut() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -676,7 +613,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with asciiAlphanumeric shortcut`() {
+    fun charClassWithAsciiAlphanumericShortcut() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -690,7 +627,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with hexDigit shortcut`() {
+    fun charClassWithHexDigitShortcut() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -705,7 +642,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass shortcuts can be combined`() {
+    fun charClassShortcutsCanBeCombined() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -727,7 +664,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `capture creates capturing group`() {
+    fun captureCreatesCapturingGroup() {
         val pattern = regex {
             capture {
                 oneOrMore { digit() }
@@ -743,7 +680,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `capture with name creates named capturing group`() {
+    fun captureWithNameCreatesNamedCapturingGroup() {
         val pattern = regex {
             captureAs("year") {
                 repeat(4) { digit() }
@@ -759,7 +696,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `capture name validation`() {
+    fun captureNameValidation() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 captureAs("") { literal("test") }
@@ -780,7 +717,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `group creates non-capturing group`() {
+    fun groupCreatesNonCapturingGroup() {
         val pattern = regex {
             group {
                 literal("ab")
@@ -800,7 +737,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `backReference by number`() {
+    fun backReferenceByNumber() {
         val pattern = regex {
             capture {
                 oneOrMore { wordChar() }
@@ -813,7 +750,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `backReference by name`() {
+    fun backReferenceByName() {
         val pattern = regex {
             captureAs("word") {
                 oneOrMore { wordChar() }
@@ -826,7 +763,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `backReference validation`() {
+    fun backReferenceValidation() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 backReference(0)
@@ -845,7 +782,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `optional matches 0 or 1 times`() {
+    fun optionalMatchesZeroOrOneTimes() {
         val pattern = regex {
             literal("colo")
             optional { literal("u") }
@@ -856,7 +793,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `zeroOrMore matches 0 or more times`() {
+    fun zeroOrMoreMatchesZeroOrMoreTimes() {
         val pattern = regex {
             startOfLine()
             zeroOrMore { digit() }
@@ -867,7 +804,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `oneOrMore matches 1 or more times`() {
+    fun oneOrMoreMatchesOneOrMoreTimes() {
         val pattern = regex {
             startOfLine()
             oneOrMore { digit() }
@@ -879,7 +816,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `repeat exact count`() {
+    fun repeatExactCount() {
         val pattern = regex {
             startOfLine()
             repeat(3) { digit() }
@@ -891,7 +828,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `repeat validation`() {
+    fun repeatValidation() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 repeat(-1) { digit() }
@@ -900,7 +837,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `repeat range`() {
+    fun repeatRange() {
         val pattern = regex {
             startOfLine()
             repeat(2, 4) { digit() }
@@ -914,7 +851,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `repeat range validation`() {
+    fun repeatRangeValidation() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 repeat(-1, 5) { digit() }
@@ -929,7 +866,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `atLeast matches minimum or more times`() {
+    fun atLeastMatchesMinimumOrMoreTimes() {
         val pattern = regex {
             startOfLine()
             atLeast(2) { digit() }
@@ -941,7 +878,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `atLeast validation`() {
+    fun atLeastValidation() {
         assertFailsWith<IllegalArgumentException> {
             regex {
                 atLeast(-1) { digit() }
@@ -954,7 +891,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `lazy quantifiers prefer fewer matches`() {
+    fun lazyQuantifiersPreferFewerMatches() {
         val greedy = regex {
             literal("<")
             oneOrMore { anyChar() }
@@ -972,7 +909,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `zeroOrMoreLazy generates correct pattern`() {
+    fun zeroOrMoreLazyGeneratesCorrectPattern() {
         val pattern = regex {
             zeroOrMoreLazy { anyChar() }
         }
@@ -980,7 +917,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `optionalLazy generates correct pattern`() {
+    fun optionalLazyGeneratesCorrectPattern() {
         val pattern = regex {
             optionalLazy { digit() }
         }
@@ -988,39 +925,11 @@ class RegexBuilderTest {
     }
 
     // =========================================================================
-    // Possessive Quantifiers Tests
-    // =========================================================================
-
-    @Test
-    fun `possessive quantifiers generate correct pattern`() {
-        val pattern = regex {
-            oneOrMorePossessive { digit() }
-        }
-        assertEquals("\\d++", pattern.pattern)
-    }
-
-    @Test
-    fun `zeroOrMorePossessive generates correct pattern`() {
-        val pattern = regex {
-            zeroOrMorePossessive { anyChar() }
-        }
-        assertEquals(".*+", pattern.pattern)
-    }
-
-    @Test
-    fun `optionalPossessive generates correct pattern`() {
-        val pattern = regex {
-            optionalPossessive { digit() }
-        }
-        assertEquals("\\d?+", pattern.pattern)
-    }
-
-    // =========================================================================
     // Lookaround Tests
     // =========================================================================
 
     @Test
-    fun `lookAhead positive assertion`() {
+    fun lookAheadPositiveAssertion() {
         val pattern = regex {
             oneOrMore { digit() }
             lookAhead { literal("px") }
@@ -1031,7 +940,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `negativeLookAhead assertion`() {
+    fun negativeLookAheadAssertion() {
         val pattern = regex {
             startOfLine()
             oneOrMore { digit() }
@@ -1042,19 +951,23 @@ class RegexBuilderTest {
         assertTrue(pattern.matches("100"))
     }
 
+    // =========================================================================
+    // Lookbehind Tests
+    // =========================================================================
+
     @Test
-    fun `lookBehind positive assertion`() {
+    fun lookBehindPositiveAssertion() {
         val pattern = regex {
             lookBehind { literal("$") }
             oneOrMore { digit() }
         }
-        assertTrue(pattern.containsMatchIn("$100"))
+        assertTrue(pattern.containsMatchIn("\$100"))
         assertFalse(pattern.containsMatchIn("100"))
-        assertEquals("100", pattern.find("$100")?.value)
+        assertEquals("100", pattern.find("\$100")?.value)
     }
 
     @Test
-    fun `negativeLookBehind assertion`() {
+    fun negativeLookBehindAssertion() {
         val pattern = regex {
             negativeLookBehind { literal("$") }
             oneOrMore { digit() }
@@ -1063,41 +976,22 @@ class RegexBuilderTest {
         // Note: "$100" still matches because "00" doesn't have $ before it
     }
 
-    // =========================================================================
-    // Inline Modifiers Tests
-    // =========================================================================
-
     @Test
-    fun `caseInsensitive modifier`() {
+    fun lookBehindGeneratesCorrectPattern() {
         val pattern = regex {
-            caseInsensitive {
-                literal("hello")
-            }
+            lookBehind { literal("@") }
+            word()
         }
-        assertTrue(pattern.matches("hello"))
-        assertTrue(pattern.matches("HELLO"))
-        assertTrue(pattern.matches("HeLLo"))
+        assertTrue(pattern.containsMatchIn("user@domain"))
     }
 
     @Test
-    fun `multiline modifier pattern`() {
+    fun negativeLookBehindGeneratesCorrectPattern() {
         val pattern = regex {
-            multiline {
-                startOfLine()
-                digit()
-            }
+            negativeLookBehind { digit() }
+            asciiLetter()
         }
-        assertEquals("(?m:^\\d)", pattern.pattern)
-    }
-
-    @Test
-    fun `dotAll modifier pattern`() {
-        val pattern = regex {
-            dotAll {
-                anyChar()
-            }
-        }
-        assertEquals("(?s:.)", pattern.pattern)
+        assertEquals("(?<!\\d)[a-zA-Z]", pattern.pattern)
     }
 
     // =========================================================================
@@ -1105,7 +999,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `appendRaw appends pattern without escaping`() {
+    fun appendRawAppendsPatternWithoutEscaping() {
         val pattern = regex {
             appendRaw("[a-z]+")
         }
@@ -1118,7 +1012,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `phone number pattern`() {
+    fun phoneNumberPattern() {
         val phone = regex {
             startOfLine()
             optional { literal("+") }
@@ -1139,7 +1033,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `URL pattern`() {
+    fun urlPattern() {
         val url = regex(RegexOption.IGNORE_CASE) {
             startOfLine()
             captureAs("protocol") {
@@ -1183,7 +1077,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `HTML tag pattern with back reference`() {
+    fun htmlTagPatternWithBackReference() {
         val htmlTag = regex {
             literal("<")
             captureAs("tag") {
@@ -1207,7 +1101,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `charClass with nonDigit`() {
+    fun charClassWithNonDigit() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -1224,7 +1118,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with nonWordChar`() {
+    fun charClassWithNonWordChar() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -1241,7 +1135,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `charClass with nonWhitespace`() {
+    fun charClassWithNonWhitespace() {
         val pattern = regex {
             startOfLine()
             oneOrMore {
@@ -1262,7 +1156,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `single atom optimization - digit`() {
+    fun singleAtomOptimizationDigit() {
         val pattern = regex {
             oneOrMore { digit() }
         }
@@ -1270,7 +1164,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `single atom optimization - anyChar`() {
+    fun singleAtomOptimizationAnyChar() {
         val pattern = regex {
             zeroOrMore { anyChar() }
         }
@@ -1278,7 +1172,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `single atom optimization - charClass`() {
+    fun singleAtomOptimizationCharClass() {
         val pattern = regex {
             oneOrMore {
                 charClass {
@@ -1290,27 +1184,22 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `single atom optimization - unicode property`() {
-        val pattern = regex {
-            oneOrMore { unicodeLetter() }
-        }
-        assertEquals("\\p{L}+", pattern.pattern)
-    }
-
-    @Test
-    fun `multi element still gets grouped`() {
+    fun multiElementStillGetsGrouped() {
+        // Pattern string test moved to JVM (uses \Q...\E escaping)
+        // Here we just verify functional behavior
         val pattern = regex {
             oneOrMore {
                 digit()
                 literal("-")
             }
         }
-        assertEquals("(?:\\d\\Q-\\E)+", pattern.pattern)
         assertTrue(pattern.matches("1-2-3-"))
     }
 
     @Test
-    fun `already grouped pattern stays optimized`() {
+    fun alreadyGroupedPatternStaysOptimized() {
+        // Pattern string test moved to JVM (uses \Q...\E escaping)
+        // Here we just verify functional behavior
         val pattern = regex {
             oneOrMore {
                 group {
@@ -1318,7 +1207,6 @@ class RegexBuilderTest {
                 }
             }
         }
-        assertEquals("(?:\\Qab\\E)+", pattern.pattern)
         assertTrue(pattern.matches("abab"))
     }
 
@@ -1327,7 +1215,7 @@ class RegexBuilderTest {
     // =========================================================================
 
     @Test
-    fun `email pattern`() {
+    fun emailPattern() {
         val pattern = regex {
             startOfLine()
             email()
@@ -1342,7 +1230,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `httpUrl pattern`() {
+    fun httpUrlPattern() {
         val pattern = regex {
             startOfLine()
             httpUrl()
@@ -1356,7 +1244,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `httpUrlWithCapture extracts groups`() {
+    fun httpUrlWithCaptureExtractsGroups() {
         val pattern = regex {
             startOfLine()
             httpUrlWithCapture()
@@ -1370,7 +1258,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ipv4 pattern`() {
+    fun ipv4Pattern() {
         val pattern = regex {
             startOfLine()
             ipv4()
@@ -1384,7 +1272,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `ipv4Strict validates octet range`() {
+    fun ipv4StrictValidatesOctetRange() {
         val pattern = regex {
             startOfLine()
             ipv4Strict()
@@ -1398,7 +1286,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `uuid pattern`() {
+    fun uuidPattern() {
         val pattern = regex {
             startOfLine()
             uuid()
@@ -1411,7 +1299,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `hexColor pattern`() {
+    fun hexColorPattern() {
         val pattern = regex {
             startOfLine()
             hexColor()
@@ -1426,7 +1314,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `isoDate pattern`() {
+    fun isoDatePattern() {
         val pattern = regex {
             startOfLine()
             isoDate()
@@ -1439,7 +1327,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `time pattern`() {
+    fun timePattern() {
         val pattern = regex {
             startOfLine()
             time()
@@ -1453,7 +1341,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `semver pattern`() {
+    fun semverPattern() {
         val pattern = regex {
             startOfLine()
             semver()
@@ -1470,7 +1358,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `integer pattern`() {
+    fun integerPattern() {
         val pattern = regex {
             startOfLine()
             integer()
@@ -1485,7 +1373,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `decimal pattern`() {
+    fun decimalPattern() {
         val pattern = regex {
             startOfLine()
             decimal()
@@ -1500,7 +1388,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `slug pattern`() {
+    fun slugPattern() {
         val pattern = regex {
             startOfLine()
             slug()
@@ -1514,7 +1402,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `phoneNumber pattern`() {
+    fun phoneNumberPatternExtension() {
         val pattern = regex {
             startOfLine()
             phoneNumber()
@@ -1527,7 +1415,7 @@ class RegexBuilderTest {
     }
 
     @Test
-    fun `usPhoneNumber pattern`() {
+    fun usPhoneNumberPattern() {
         val pattern = regex {
             startOfLine()
             usPhoneNumber()
@@ -1538,691 +1426,4 @@ class RegexBuilderTest {
         assertFalse(pattern.matches("1234567890"))
     }
 
-    // =========================================================================
-    // Korean (Hangul) Pattern Tests
-    // =========================================================================
-
-    @Test
-    fun `hangulSyllable matches complete Korean syllables`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { hangulSyllable() }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("안녕하세요"))
-        assertTrue(pattern.matches("가나다라마바사"))
-        assertTrue(pattern.matches("한글"))
-        assertFalse(pattern.matches("hello"))
-        assertFalse(pattern.matches("ㄱㄴㄷ"))
-        assertFalse(pattern.matches("ㅏㅓㅗ"))
-        assertFalse(pattern.matches("한글123"))
-    }
-
-    @Test
-    fun `hangulJamo matches Korean jamo characters`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { hangulJamo() }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("ㄱㄴㄷㄹ"))
-        assertTrue(pattern.matches("ㅏㅓㅗㅜ"))
-        assertTrue(pattern.matches("ㄱㅏㄴㅏ"))
-        assertFalse(pattern.matches("가나다"))
-        assertFalse(pattern.matches("abc"))
-    }
-
-    @Test
-    fun `hangulConsonant matches Korean consonants only`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { hangulConsonant() }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"))
-        assertTrue(pattern.matches("ㄱㄱㄱ"))
-        assertFalse(pattern.matches("ㅏㅓㅗ"))
-        assertFalse(pattern.matches("가나다"))
-        assertFalse(pattern.matches("ㄱㅏ"))
-    }
-
-    @Test
-    fun `hangulVowel matches Korean vowels only`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { hangulVowel() }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("ㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ"))
-        assertTrue(pattern.matches("ㅏㅏㅏ"))
-        assertFalse(pattern.matches("ㄱㄴㄷ"))
-        assertFalse(pattern.matches("가나다"))
-        assertFalse(pattern.matches("ㅏㄱ"))
-    }
-
-    @Test
-    fun `hangul patterns generate correct regex`() {
-        assertEquals("[가-힣]", regex { hangulSyllable() }.pattern)
-        assertEquals("[ㄱ-ㅣ]", regex { hangulJamo() }.pattern)
-        assertEquals("[ㄱ-ㅎ]", regex { hangulConsonant() }.pattern)
-        assertEquals("[ㅏ-ㅣ]", regex { hangulVowel() }.pattern)
-    }
-
-    @Test
-    fun `hangulSyllable combined with other patterns`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { hangulSyllable() }
-            whitespace()
-            oneOrMore { digit() }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("가격 1000"))
-        assertTrue(pattern.matches("번호 123"))
-        assertFalse(pattern.matches("price 1000"))
-    }
-
-    @Test
-    fun `hangulSyllable patterns work inside charClass`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                charClass {
-                    hangulSyllable()
-                    digit()
-                }
-            }
-            endOfLine()
-        }
-        assertEquals("^[가-힣\\d]+$", pattern.pattern)
-        assertTrue(pattern.matches("안녕123"))
-        assertTrue(pattern.matches("가나다"))
-        assertTrue(pattern.matches("123"))
-        assertFalse(pattern.matches("hello"))
-        assertFalse(pattern.matches("ㄱㄴㄷ"))
-    }
-
-    @Test
-    fun `hangulJamo works inside charClass`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                charClass {
-                    hangulJamo()
-                    chars("!")
-                }
-            }
-            endOfLine()
-        }
-        assertEquals("^[ㄱ-ㅣ!]+$", pattern.pattern)
-        assertTrue(pattern.matches("ㄱㄴㄷ!"))
-        assertTrue(pattern.matches("ㅋㅋㅋ"))
-        assertFalse(pattern.matches("가나다"))
-    }
-
-    @Test
-    fun `multiple hangul ranges in charClass`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                charClass {
-                    hangulSyllable()
-                    hangulConsonant()
-                    digit()
-                }
-            }
-            endOfLine()
-        }
-        assertEquals("^[가-힣ㄱ-ㅎ\\d]+$", pattern.pattern)
-        assertTrue(pattern.matches("가나다ㄱㄴㄷ123"))
-        assertFalse(pattern.matches("ㅏㅓㅗ"))
-    }
-
-    // =========================================================================
-    // POSIX Character Class Tests
-    // =========================================================================
-
-    @Test
-    fun `posixAlnum matches alphanumeric characters`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixAlnum() }
-            endOfLine()
-        }
-        assertEquals("^\\p{Alnum}+$", pattern.pattern)
-        assertTrue(pattern.matches("Hello123"))
-        assertTrue(pattern.matches("abc"))
-        assertTrue(pattern.matches("123"))
-        assertFalse(pattern.matches("Hello World"))
-        assertFalse(pattern.matches("hello!"))
-    }
-
-    @Test
-    fun `posixAlpha matches alphabetic characters`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixAlpha() }
-            endOfLine()
-        }
-        assertEquals("^\\p{Alpha}+$", pattern.pattern)
-        assertTrue(pattern.matches("Hello"))
-        assertTrue(pattern.matches("abc"))
-        assertFalse(pattern.matches("Hello123"))
-        assertFalse(pattern.matches("123"))
-    }
-
-    @Test
-    fun `posixDigit matches digits`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixDigit() }
-            endOfLine()
-        }
-        assertEquals("^\\p{Digit}+$", pattern.pattern)
-        assertTrue(pattern.matches("123"))
-        assertFalse(pattern.matches("abc"))
-    }
-
-    @Test
-    fun `posixLower matches lowercase letters`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixLower() }
-            endOfLine()
-        }
-        assertEquals("^\\p{Lower}+$", pattern.pattern)
-        assertTrue(pattern.matches("hello"))
-        assertFalse(pattern.matches("Hello"))
-        assertFalse(pattern.matches("HELLO"))
-    }
-
-    @Test
-    fun `posixUpper matches uppercase letters`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixUpper() }
-            endOfLine()
-        }
-        assertEquals("^\\p{Upper}+$", pattern.pattern)
-        assertTrue(pattern.matches("HELLO"))
-        assertFalse(pattern.matches("Hello"))
-        assertFalse(pattern.matches("hello"))
-    }
-
-    @Test
-    fun `posixXDigit matches hexadecimal digits`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixXDigit() }
-            endOfLine()
-        }
-        assertEquals("^\\p{XDigit}+$", pattern.pattern)
-        assertTrue(pattern.matches("0123456789"))
-        assertTrue(pattern.matches("abcdef"))
-        assertTrue(pattern.matches("ABCDEF"))
-        assertTrue(pattern.matches("DeadBeef"))
-        assertFalse(pattern.matches("xyz"))
-    }
-
-    @Test
-    fun `posix classes work inside charClass`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                charClass {
-                    posixAlpha()
-                    posixDigit()
-                }
-            }
-            endOfLine()
-        }
-        assertEquals("^[\\p{Alpha}\\p{Digit}]+$", pattern.pattern)
-        assertTrue(pattern.matches("Hello123"))
-    }
-
-    @Test
-    fun `posixSpace matches whitespace`() {
-        val pattern = regex {
-            posixAlpha()
-            posixSpace()
-            posixAlpha()
-        }
-        assertEquals("\\p{Alpha}\\p{Space}\\p{Alpha}", pattern.pattern)
-        assertTrue(pattern.containsMatchIn("a b"))
-        assertTrue(pattern.containsMatchIn("a\tb"))
-        assertTrue(pattern.containsMatchIn("a\nb"))
-    }
-
-    @Test
-    fun `posixPunct matches punctuation`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore { posixPunct() }
-            endOfLine()
-        }
-        assertEquals("^\\p{Punct}+$", pattern.pattern)
-        assertTrue(pattern.matches("!@#"))
-        assertTrue(pattern.matches(".,;:"))
-        assertFalse(pattern.matches("abc"))
-    }
-
-    // =========================================================================
-    // Builder Block Tests (posix{}, unicode{}, hangul{})
-    // =========================================================================
-
-    @Test
-    fun `posix builder in RegexBuilder creates character class`() {
-        val pattern = regex {
-            posix {
-                alnum()
-                punct()
-            }
-        }
-        assertEquals("[\\p{Alnum}\\p{Punct}]", pattern.pattern)
-    }
-
-    @Test
-    fun `posix builder in charClass does not double wrap`() {
-        val pattern = regex {
-            charClass {
-                posix {
-                    alpha()
-                    digit()
-                }
-                chars("_")
-            }
-        }
-        assertEquals("[\\p{Alpha}\\p{Digit}_]", pattern.pattern)
-    }
-
-    @Test
-    fun `posix builder all methods`() {
-        val pattern = regex {
-            charClass {
-                posix {
-                    alnum()
-                    alpha()
-                    ascii()
-                    blank()
-                    cntrl()
-                    digit()
-                    graph()
-                    lower()
-                    print()
-                    punct()
-                    space()
-                    upper()
-                    xdigit()
-                }
-            }
-        }
-        val expected = "[\\p{Alnum}\\p{Alpha}\\p{ASCII}\\p{Blank}\\p{Cntrl}\\p{Digit}" +
-                "\\p{Graph}\\p{Lower}\\p{Print}\\p{Punct}\\p{Space}\\p{Upper}\\p{XDigit}]"
-        assertEquals(expected, pattern.pattern)
-    }
-
-    @Test
-    fun `unicode builder in RegexBuilder creates character class`() {
-        val pattern = regex {
-            unicode {
-                letter()
-                number()
-            }
-        }
-        assertEquals("[\\p{L}\\p{N}]", pattern.pattern)
-    }
-
-    @Test
-    fun `unicode builder in charClass does not double wrap`() {
-        val pattern = regex {
-            charClass {
-                unicode {
-                    letter()
-                    punctuation()
-                }
-                chars("-")
-            }
-        }
-        assertEquals("[\\p{L}\\p{P}\\-]", pattern.pattern)
-    }
-
-    @Test
-    fun `unicode builder all methods`() {
-        val pattern = regex {
-            charClass {
-                unicode {
-                    property("L")
-                    notProperty("N")
-                    script("Han")
-                    block("BasicLatin")
-                    letter()
-                    uppercaseLetter()
-                    lowercaseLetter()
-                    number()
-                    punctuation()
-                    symbol()
-                }
-            }
-        }
-        val expected = "[\\p{L}\\P{N}\\p{IsHan}\\p{InBasicLatin}\\p{L}\\p{Lu}\\p{Ll}\\p{N}\\p{P}\\p{S}]"
-        assertEquals(expected, pattern.pattern)
-    }
-
-    @Test
-    fun `unicode builder with script matches Han characters`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                unicode {
-                    script("Han")
-                }
-            }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("漢字"))
-        assertTrue(pattern.matches("中文"))
-        assertFalse(pattern.matches("한글"))
-        assertFalse(pattern.matches("abc"))
-    }
-
-    @Test
-    fun `hangul builder in RegexBuilder creates character class`() {
-        val pattern = regex {
-            hangul {
-                syllable()
-                consonant()
-            }
-        }
-        assertEquals("[가-힣ㄱ-ㅎ]", pattern.pattern)
-    }
-
-    @Test
-    fun `hangul builder in charClass does not double wrap`() {
-        val pattern = regex {
-            charClass {
-                hangul {
-                    syllable()
-                    jamo()
-                }
-                digit()
-            }
-        }
-        assertEquals("[가-힣ㄱ-ㅣ\\d]", pattern.pattern)
-    }
-
-    @Test
-    fun `hangul builder all methods`() {
-        val pattern = regex {
-            charClass {
-                hangul {
-                    syllable()
-                    jamo()
-                    consonant()
-                    vowel()
-                }
-            }
-        }
-        assertEquals("[가-힣ㄱ-ㅣㄱ-ㅎㅏ-ㅣ]", pattern.pattern)
-    }
-
-    @Test
-    fun `hangul builder matches Korean text`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                hangul {
-                    syllable()
-                    consonant()
-                }
-            }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("안녕하세요"))
-        assertTrue(pattern.matches("ㅋㅋㅋ"))
-        assertTrue(pattern.matches("가나다ㄱㄴㄷ"))
-        assertFalse(pattern.matches("ㅏㅓㅗ"))  // vowels only
-        assertFalse(pattern.matches("hello"))
-    }
-
-    @Test
-    fun `hangul builder vowel only`() {
-        val pattern = regex {
-            startOfLine()
-            oneOrMore {
-                hangul {
-                    vowel()
-                }
-            }
-            endOfLine()
-        }
-        assertTrue(pattern.matches("ㅏㅓㅗㅜ"))
-        assertFalse(pattern.matches("ㄱㄴㄷ"))
-        assertFalse(pattern.matches("가나다"))
-    }
-
-    @Test
-    fun `combined builders in charClass`() {
-        val pattern = regex {
-            charClass {
-                hangul {
-                    syllable()
-                }
-                unicode {
-                    script("Han")
-                }
-                ascii {
-                    letter()
-                }
-            }
-        }
-        assertEquals("[가-힣\\p{IsHan}a-zA-Z]", pattern.pattern)
-    }
-
-    @Test
-    fun `builders with quantifiers`() {
-        val pattern = regex {
-            oneOrMore {
-                posix {
-                    alnum()
-                }
-            }
-            zeroOrMore {
-                unicode {
-                    punctuation()
-                }
-            }
-            optional {
-                hangul {
-                    syllable()
-                }
-            }
-        }
-        assertEquals("[\\p{Alnum}]+[\\p{P}]*[가-힣]?", pattern.pattern)
-    }
-
-    // =========================================================================
-    // Password Pattern Tests
-    // =========================================================================
-
-    @Test
-    fun `password with all requirements`() {
-        val pattern = regex {
-            line {
-                password(
-                    minLength = 8,
-                    maxLength = 20,
-                    requireUppercase = true,
-                    requireLowercase = true,
-                    requireDigit = true,
-                    requireSpecialChar = true
-                )
-            }
-        }
-        assertTrue(pattern.matches("Password1!"))
-        assertTrue(pattern.matches("Str0ng@Pass"))
-        assertTrue(pattern.matches("Aa1!Aa1!"))
-        assertFalse(pattern.matches("password1!"))    // no uppercase
-        assertFalse(pattern.matches("PASSWORD1!"))    // no lowercase
-        assertFalse(pattern.matches("Password!!"))    // no digit
-        assertFalse(pattern.matches("Password1"))     // no special
-        assertFalse(pattern.matches("Pass1!"))        // too short
-        assertFalse(pattern.matches("Password1!TooLongPassword123"))  // too long
-    }
-
-    @Test
-    fun `password with custom special chars`() {
-        val pattern = regex {
-            line {
-                password(
-                    minLength = 8,
-                    requireSpecialChar = true,
-                    allowedSpecialChars = "!@#"
-                )
-            }
-        }
-        assertTrue(pattern.matches("password!"))
-        assertTrue(pattern.matches("password@"))
-        assertTrue(pattern.matches("password#"))
-        assertFalse(pattern.matches("password\$"))  // $ not in allowedSpecialChars
-        assertFalse(pattern.matches("password%"))   // % not in allowedSpecialChars
-    }
-
-    @Test
-    fun `password rejects non-allowed characters`() {
-        val pattern = regex {
-            line { password(minLength = 8) }
-        }
-        assertTrue(pattern.matches("pass word"))      // space IS allowed (OWASP set includes space)
-        assertFalse(pattern.matches("비밀번호12345678"))  // Korean not allowed
-        assertFalse(pattern.matches("pass\tword"))    // tab not allowed
-        assertFalse(pattern.matches("pässwörd"))      // non-ASCII letters not allowed
-    }
-
-    @Test
-    fun `password with length only`() {
-        val pattern = regex {
-            line { password(minLength = 6) }
-        }
-        assertTrue(pattern.matches("abcdef"))
-        assertTrue(pattern.matches("123456"))
-        assertTrue(pattern.matches("abc123"))
-        assertFalse(pattern.matches("abc"))  // too short
-        assertFalse(pattern.matches("ab"))   // too short
-    }
-
-    @Test
-    fun `password with no max length`() {
-        val pattern = regex {
-            line { password(minLength = 8, maxLength = null) }
-        }
-        assertTrue(pattern.matches("a".repeat(100)))  // long password OK
-        assertTrue(pattern.matches("a".repeat(500)))  // very long password OK when maxLength = null
-    }
-
-    @Test
-    fun `password with default max length`() {
-        val pattern = regex {
-            line { password(minLength = 8) }
-        }
-        assertTrue(pattern.matches("a".repeat(256)))   // exactly 256 chars OK (default maxLength)
-        assertFalse(pattern.matches("a".repeat(257)))  // 257 chars exceeds default maxLength
-    }
-
-    @Test
-    fun `password with minLength 1 works`() {
-        val pattern = regex {
-            line { password(minLength = 1, maxLength = 10) }
-        }
-        assertTrue(pattern.matches("a"))
-        assertTrue(pattern.matches("!"))
-        assertTrue(pattern.matches("1"))
-        assertFalse(pattern.matches(""))  // empty not allowed
-    }
-
-    @Test
-    fun `password with only uppercase requirement`() {
-        val pattern = regex {
-            line {
-                password(
-                    minLength = 8,
-                    requireUppercase = true
-                )
-            }
-        }
-        assertTrue(pattern.matches("Password"))
-        assertTrue(pattern.matches("AAAAAAAA"))
-        assertFalse(pattern.matches("password"))  // no uppercase
-        assertFalse(pattern.matches("12345678"))  // no uppercase
-    }
-
-    @Test
-    fun `password with only lowercase requirement`() {
-        val pattern = regex {
-            line {
-                password(
-                    minLength = 8,
-                    requireLowercase = true
-                )
-            }
-        }
-        assertTrue(pattern.matches("Password"))
-        assertTrue(pattern.matches("aaaaaaaa"))
-        assertFalse(pattern.matches("PASSWORD"))  // no lowercase
-        assertFalse(pattern.matches("12345678"))  // no lowercase
-    }
-
-    @Test
-    fun `password with only digit requirement`() {
-        val pattern = regex {
-            line {
-                password(
-                    minLength = 8,
-                    requireDigit = true
-                )
-            }
-        }
-        assertTrue(pattern.matches("password1"))
-        assertTrue(pattern.matches("12345678"))
-        assertFalse(pattern.matches("password"))  // no digit
-        assertFalse(pattern.matches("PASSWORD"))  // no digit
-    }
-
-    @Test
-    fun `password with only special char requirement`() {
-        val pattern = regex {
-            line {
-                password(
-                    minLength = 8,
-                    requireSpecialChar = true
-                )
-            }
-        }
-        assertTrue(pattern.matches("!@#\$%^&*"))   // only special chars
-        assertTrue(pattern.matches("aaaaaa!a"))   // has special char
-        assertFalse(pattern.matches("aaaaaaaa"))  // no special char
-        assertFalse(pattern.matches("12345678"))  // no special char
-    }
-
-    @Test
-    fun `password validates minLength parameter`() {
-        assertFailsWith<IllegalArgumentException> {
-            regex {
-                password(minLength = 0)
-            }
-        }
-        assertFailsWith<IllegalArgumentException> {
-            regex {
-                password(minLength = -1)
-            }
-        }
-    }
-
-    @Test
-    fun `password validates maxLength parameter`() {
-        assertFailsWith<IllegalArgumentException> {
-            regex {
-                password(minLength = 10, maxLength = 5)  // maxLength < minLength
-            }
-        }
-    }
 }

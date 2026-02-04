@@ -1,7 +1,7 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    kotlin("jvm") version "1.9.24"
+    kotlin("multiplatform") version "1.9.24"
     id("org.jetbrains.dokka") version "1.9.20"
     id("com.vanniktech.maven.publish") version "0.30.0"
 }
@@ -13,22 +13,69 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    testImplementation(kotlin("test"))
-}
-
-tasks.test {
-    useJUnitPlatform()
-}
-
 kotlin {
-    jvmToolchain(8)
     explicitApi()
 
-    compilerOptions {
-        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8)
-        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8)
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+    // Compiler options for all targets
+    targets.all {
+        compilations.all {
+            compilerOptions.configure {
+                apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8)
+                languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_1_8)
+            }
+        }
+    }
+
+    // JVM
+    jvm {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+        testRuns["test"].executionTask.configure {
+            useJUnitPlatform()
+        }
+    }
+
+    // JS
+    js(IR) {
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
+        nodejs()
+    }
+
+    // Native - Apple
+    macosX64()
+    macosArm64()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    // Native - Linux
+    linuxX64()
+    linuxArm64()
+
+    // Native - Windows
+    mingwX64()
+
+    sourceSets {
+        val commonMain by getting
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+
+        val jvmMain by getting
+        val jvmTest by getting
+
+        val jsMain by getting
     }
 }
 
