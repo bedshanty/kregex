@@ -12,7 +12,8 @@
 
 ## 특징
 
-- **100% Java/Kotlin 정규식 문법 지원** - `java.util.regex.Pattern`과 완벽 호환
+- **100% 정규식 문법 지원** - 모든 표준 정규식 기능이 모든 플랫폼에서 동작
+- **Kotlin Multiplatform** - JVM, JS, Native (macOS, iOS, Linux, Windows) 지원
 - **사전 정의 패턴** - 이메일, 비밀번호, URL, 날짜 등 바로 사용 가능한 패턴 제공
 - **타입 안전 DSL** - Kotlin의 DSL 마커를 활용한 컴파일 타임 안전성
 - **가독성 높은 패턴** - 자체 문서화되는 정규식 구성
@@ -23,22 +24,29 @@
 - **패턴 디버깅** - 생성된 패턴 문자열 검사 가능
 - **의존성 없음** - 순수 Kotlin, 외부 의존성 없음
 
+## 플랫폼 지원
+
+| 기능 | JVM | JS | Native |
+|------|-----|----|----|
+| Core DSL | ✅ | ✅ | ✅ |
+| Unicode Categories (`\p{L}`) | ✅ | ✅ | ✅ |
+| Unicode Script | ✅ `\p{IsHan}` | ✅ `\p{Script=Han}` | ❌ |
+| Unicode Block (`\p{InBasicLatin}`) | ✅ | ❌ | ❌ |
+| POSIX Classes (`\p{Alnum}`) | ✅ | ❌ | ❌ |
+| Possessive Quantifiers | ✅ | ❌ | ❌ |
+
 ## 설치
 
 ### Gradle (Kotlin DSL)
 
 ```kotlin
-dependencies {
-    implementation("io.github.bedshanty:kregex:0.3.0")
-}
+implementation("io.github.bedshanty:kregex-jvm:0.4.0")
 ```
 
 ### Gradle (Groovy)
 
 ```groovy
-dependencies {
-    implementation 'io.github.bedshanty:kregex:0.3.0'
-}
+implementation 'io.github.bedshanty:kregex-jvm:0.4.0'
 ```
 
 ### Maven
@@ -46,9 +54,27 @@ dependencies {
 ```xml
 <dependency>
     <groupId>io.github.bedshanty</groupId>
-    <artifactId>kregex</artifactId>
-    <version>0.3.0</version>
+    <artifactId>kregex-jvm</artifactId>
+    <version>0.4.0</version>
 </dependency>
+```
+
+### Kotlin Multiplatform
+
+```kotlin
+// commonMain
+implementation("io.github.bedshanty:kregex:0.4.0")
+
+// 또는 플랫폼별
+implementation("io.github.bedshanty:kregex-js:0.4.0")               // JS
+implementation("io.github.bedshanty:kregex-macosx64:0.4.0")         // macOS x64
+implementation("io.github.bedshanty:kregex-macosarm64:0.4.0")       // macOS ARM64
+implementation("io.github.bedshanty:kregex-iosx64:0.4.0")           // iOS x64
+implementation("io.github.bedshanty:kregex-iosarm64:0.4.0")         // iOS ARM64
+implementation("io.github.bedshanty:kregex-iossimulatorarm64:0.4.0") // iOS Simulator ARM64
+implementation("io.github.bedshanty:kregex-linuxx64:0.4.0")         // Linux x64
+implementation("io.github.bedshanty:kregex-linuxarm64:0.4.0")       // Linux ARM64
+implementation("io.github.bedshanty:kregex-mingwx64:0.4.0")         // Windows x64
 ```
 
 ## 빠른 시작
@@ -336,13 +362,16 @@ regex {
 
 ### 유니코드 지원
 
-| 메서드 | 패턴 | 설명 |
-|--------|------|------|
-| `unicodeProperty("L")` | `\p{L}` | 유니코드 속성 |
-| `notUnicodeProperty("L")` | `\P{L}` | 부정 유니코드 속성 |
-| `unicodeScript("Hangul")` | `\p{IsHangul}` | 유니코드 스크립트 |
-| `unicodeLetter()` | `\p{L}` | 모든 유니코드 문자 |
-| `unicodeNumber()` | `\p{N}` | 모든 유니코드 숫자 |
+| 메서드 | 패턴 | 설명 | 플랫폼 |
+|--------|------|------|--------|
+| `unicodeProperty("L")` | `\p{L}` | 유니코드 속성 | 전체 |
+| `notUnicodeProperty("L")` | `\P{L}` | 부정 유니코드 속성 | 전체 |
+| `unicodeScript("Han")` | `\p{IsHan}` (JVM) / `\p{Script=Han}` (JS) | 유니코드 스크립트 | JVM, JS |
+| `unicodeBlock("BasicLatin")` | `\p{InBasicLatin}` | 유니코드 블록 | JVM 전용 |
+| `unicodeLetter()` | `\p{L}` | 모든 유니코드 문자 | 전체 |
+| `unicodeNumber()` | `\p{N}` | 모든 유니코드 숫자 | 전체 |
+
+> **참고**: JS에서 'u' 플래그는 Kotlin/JS가 자동으로 포함하므로 유니코드 기능이 바로 동작합니다.
 
 #### unicode 블록
 
@@ -353,21 +382,21 @@ regex {
     unicode {
         letter()       // \p{L}
         number()       // \p{N}
-        script("Han")  // \p{IsHan}
+        script("Han")  // \p{IsHan} (JVM) / \p{Script=Han} (JS)
     }
 }
-// 결과: [\p{L}\p{N}\p{IsHan}]
+// 결과: [\p{L}\p{N}\p{IsHan}] (JVM) / [\p{L}\p{N}\p{Script=Han}] (JS)
 ```
 
 `unicode { }` 내에서 사용 가능한 메서드:
 - `property(name)` - 유니코드 속성 (`\p{...}`)
 - `notProperty(name)` - 부정 속성 (`\P{...}`)
-- `script(name)` - 유니코드 스크립트 (`\p{Is...}`)
-- `block(name)` - 유니코드 블록 (`\p{In...}`)
+- `script(name)` - 유니코드 스크립트 - **JVM/JS 전용**
+- `block(name)` - 유니코드 블록 (`\p{In...}`) - **JVM 전용**
 - `letter()`, `uppercaseLetter()`, `lowercaseLetter()`
 - `number()`, `punctuation()`, `symbol()`
 
-### POSIX 문자 클래스
+### POSIX 문자 클래스 (JVM 전용)
 
 | 메서드 | 패턴 | 설명 |
 |--------|------|------|
@@ -384,6 +413,8 @@ regex {
 | `posixSpace()` | `\p{Space}` | 공백 문자 `[ \t\n\r\f\v]` |
 | `posixUpper()` | `\p{Upper}` | 대문자 `[A-Z]` |
 | `posixXDigit()` | `\p{XDigit}` | 16진수 숫자 `[0-9a-fA-F]` |
+
+> **참고**: POSIX 클래스는 JVM에서만 지원됩니다.
 
 #### posix 블록
 
@@ -539,7 +570,7 @@ zeroOrMoreLazy { anyChar() }    // (?:.)*?
 optionalLazy { digit() }        // (?:\d)??
 ```
 
-### Possessive 수량자
+### Possessive 수량자 (JVM 전용)
 
 백트래킹하지 않음:
 
@@ -548,6 +579,8 @@ oneOrMorePossessive { digit() }     // (?:\d)++
 zeroOrMorePossessive { anyChar() }  // (?:.)*+
 optionalPossessive { digit() }      // (?:\d)?+
 ```
+
+> **참고**: Possessive 수량자는 JVM에서만 지원됩니다.
 
 ### 수량자 모드 매개변수
 

@@ -6,38 +6,46 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bedshanty/kregex)](https://central.sonatype.com/artifact/io.github.bedshanty/kregex)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**Kregex** is a Kotlin DSL library for building regular expressions in a readable, type-safe, and maintainable way.
+**Kregex** is a Kotlin Multiplatform DSL library for building regular expressions in a readable, type-safe, and maintainable way.
 
 Instead of writing cryptic regex patterns like `^(?:[a-zA-Z0-9._%-]+)@(?:[a-zA-Z0-9-]+)\.(?:[a-zA-Z]{2,6})$`, you can express them as clear, self-documenting Kotlin code.
 
 ## Features
 
-- **100% Java/Kotlin regex syntax** - Full compatibility with `java.util.regex.Pattern`
+- **100% regex syntax support** - All standard regex features work on every platform
+- **Kotlin Multiplatform** - Supports JVM, JS, and Native (macOS, iOS, Linux, Windows)
 - **Pre-built patterns** - Ready-to-use patterns for email, password, URL, date, and more
 - **Type-safe DSL** - Compile-time safety with Kotlin's DSL markers
 - **Readable patterns** - Self-documenting regex construction
 - **Full regex support** - Anchors, character classes, quantifiers, lookarounds, back references
-- **Unicode support** - Unicode properties, scripts, and blocks
-- **Lazy & Possessive quantifiers** - Fine-grained matching control
+- **Unicode support** - Unicode properties, scripts (JVM/JS), and blocks (JVM only)
+- **Lazy & Possessive quantifiers** - Fine-grained matching control (Possessive: JVM only)
 - **Pattern debugging** - Get the generated pattern string for inspection
 - **Zero dependencies** - Pure Kotlin, no external dependencies
+
+## Platform Support
+
+| Feature | JVM | JS | Native |
+|---------|-----|----|----|
+| Core DSL | ✅ | ✅ | ✅ |
+| Unicode Categories (`\p{L}`) | ✅ | ✅ | ✅ |
+| Unicode Script | ✅ `\p{IsHan}` | ✅ `\p{Script=Han}` | ❌ |
+| Unicode Block (`\p{InBasicLatin}`) | ✅ | ❌ | ❌ |
+| POSIX Classes (`\p{Alnum}`) | ✅ | ❌ | ❌ |
+| Possessive Quantifiers | ✅ | ❌ | ❌ |
 
 ## Installation
 
 ### Gradle (Kotlin DSL)
 
 ```kotlin
-dependencies {
-    implementation("io.github.bedshanty:kregex:0.3.0")
-}
+implementation("io.github.bedshanty:kregex-jvm:0.4.0")
 ```
 
 ### Gradle (Groovy)
 
 ```groovy
-dependencies {
-    implementation 'io.github.bedshanty:kregex:0.3.0'
-}
+implementation 'io.github.bedshanty:kregex-jvm:0.4.0'
 ```
 
 ### Maven
@@ -45,9 +53,27 @@ dependencies {
 ```xml
 <dependency>
     <groupId>io.github.bedshanty</groupId>
-    <artifactId>kregex</artifactId>
-    <version>0.3.0</version>
+    <artifactId>kregex-jvm</artifactId>
+    <version>0.4.0</version>
 </dependency>
+```
+
+### Kotlin Multiplatform
+
+```kotlin
+// commonMain
+implementation("io.github.bedshanty:kregex:0.4.0")
+
+// Or platform-specific
+implementation("io.github.bedshanty:kregex-js:0.4.0")               // JS
+implementation("io.github.bedshanty:kregex-macosx64:0.4.0")         // macOS x64
+implementation("io.github.bedshanty:kregex-macosarm64:0.4.0")       // macOS ARM64
+implementation("io.github.bedshanty:kregex-iosx64:0.4.0")           // iOS x64
+implementation("io.github.bedshanty:kregex-iosarm64:0.4.0")         // iOS ARM64
+implementation("io.github.bedshanty:kregex-iossimulatorarm64:0.4.0") // iOS Simulator ARM64
+implementation("io.github.bedshanty:kregex-linuxx64:0.4.0")         // Linux x64
+implementation("io.github.bedshanty:kregex-linuxarm64:0.4.0")       // Linux ARM64
+implementation("io.github.bedshanty:kregex-mingwx64:0.4.0")         // Windows x64
 ```
 
 ## Quick Start
@@ -257,18 +283,20 @@ regex {
 
 ### Unicode Support
 
-| Method | Pattern | Description |
-|--------|---------|-------------|
-| `unicodeProperty("L")` | `\p{L}` | Unicode property |
-| `notUnicodeProperty("L")` | `\P{L}` | Negated Unicode property |
-| `unicodeScript("Greek")` | `\p{IsGreek}` | Unicode script |
-| `unicodeBlock("BasicLatin")` | `\p{InBasicLatin}` | Unicode block |
-| `unicodeLetter()` | `\p{L}` | Any Unicode letter |
-| `unicodeUppercaseLetter()` | `\p{Lu}` | Unicode uppercase letter |
-| `unicodeLowercaseLetter()` | `\p{Ll}` | Unicode lowercase letter |
-| `unicodeNumber()` | `\p{N}` | Any Unicode numeric character |
-| `unicodePunctuation()` | `\p{P}` | Unicode punctuation |
-| `unicodeSymbol()` | `\p{S}` | Unicode symbol |
+| Method | Pattern | Description | Platform |
+|--------|---------|-------------|----------|
+| `unicodeProperty("L")` | `\p{L}` | Unicode property | All |
+| `notUnicodeProperty("L")` | `\P{L}` | Negated Unicode property | All |
+| `unicodeScript("Greek")` | `\p{IsGreek}` (JVM) / `\p{Script=Greek}` (JS) | Unicode script | JVM, JS |
+| `unicodeBlock("BasicLatin")` | `\p{InBasicLatin}` | Unicode block | JVM only |
+| `unicodeLetter()` | `\p{L}` | Any Unicode letter | All |
+| `unicodeUppercaseLetter()` | `\p{Lu}` | Unicode uppercase letter | All |
+| `unicodeLowercaseLetter()` | `\p{Ll}` | Unicode lowercase letter | All |
+| `unicodeNumber()` | `\p{N}` | Any Unicode numeric character | All |
+| `unicodePunctuation()` | `\p{P}` | Unicode punctuation | All |
+| `unicodeSymbol()` | `\p{S}` | Unicode symbol | All |
+
+> **Note**: On JavaScript, the `u` flag is automatically included by Kotlin/JS, so Unicode features work out of the box.
 
 #### Unicode Block
 
@@ -279,17 +307,17 @@ regex {
     unicode {
         letter()       // \p{L}
         number()       // \p{N}
-        script("Han")  // \p{IsHan}
+        script("Han")  // \p{IsHan} (JVM) / \p{Script=Han} (JS)
     }
 }
-// Result: [\p{L}\p{N}\p{IsHan}]
+// Result: [\p{L}\p{N}\p{IsHan}] (JVM) / [\p{L}\p{N}\p{Script=Han}] (JS)
 ```
 
 Available methods inside `unicode { }`:
 - `property(name)` - Unicode property (`\p{...}`)
 - `notProperty(name)` - Negated property (`\P{...}`)
-- `script(name)` - Unicode script (`\p{Is...}`)
-- `block(name)` - Unicode block (`\p{In...}`)
+- `script(name)` - Unicode script (`\p{Is...}`) - **JVM/JS only**
+- `block(name)` - Unicode block (`\p{In...}`) - **JVM only**
 - `letter()`, `uppercaseLetter()`, `lowercaseLetter()`
 - `number()`, `punctuation()`, `symbol()`
 
@@ -336,10 +364,10 @@ Available methods inside `ascii { }`:
 
 | Method | Pattern | Description |
 |--------|---------|-------------|
-| `hangulSyllable()` | `[가-힣]` | Complete Hangul syllable (완성형 한글) |
-| `hangulJamo()` | `[ㄱ-ㅣ]` | Hangul Jamo - consonants and vowels (한글 자모) |
-| `hangulConsonant()` | `[ㄱ-ㅎ]` | Hangul consonants only (한글 자음) |
-| `hangulVowel()` | `[ㅏ-ㅣ]` | Hangul vowels only (한글 모음) |
+| `hangulSyllable()` | `[가-힣]` | Complete Hangul syllable |
+| `hangulJamo()` | `[ㄱ-ㅣ]` | Hangul Jamo - consonants and vowels |
+| `hangulConsonant()` | `[ㄱ-ㅎ]` | Hangul consonants only |
+| `hangulVowel()` | `[ㅏ-ㅣ]` | Hangul vowels only |
 
 These patterns work in both `RegexBuilder` and `CharClassBuilder` contexts:
 
@@ -386,7 +414,7 @@ Available methods inside `hangul { }`:
 - `consonant()` - Consonants only (ㄱ-ㅎ)
 - `vowel()` - Vowels only (ㅏ-ㅣ)
 
-### POSIX Character Classes
+### POSIX Character Classes (JVM Only)
 
 | Method | Pattern | Description |
 |--------|---------|-------------|
@@ -403,6 +431,8 @@ Available methods inside `hangul { }`:
 | `posixSpace()` | `\p{Space}` | Whitespace `[ \t\n\r\f\v]` |
 | `posixUpper()` | `\p{Upper}` | Uppercase `[A-Z]` |
 | `posixXDigit()` | `\p{XDigit}` | Hex digits `[0-9a-fA-F]` |
+
+> **Note**: POSIX classes are only available on JVM.
 
 #### POSIX Block
 
@@ -518,7 +548,7 @@ zeroOrMoreLazy { anyChar() }    // (?:.)*?
 optionalLazy { digit() }        // (?:\d)??
 ```
 
-### Possessive Quantifiers
+### Possessive Quantifiers (JVM Only)
 
 Possessive quantifiers don't backtrack:
 
@@ -528,13 +558,15 @@ zeroOrMorePossessive { anyChar() }  // (?:.)*+
 optionalPossessive { digit() }      // (?:\d)?+
 ```
 
+> **Note**: Possessive quantifiers are only available on JVM.
+
 ### Quantifier Mode Parameter
 
 You can also specify the mode as a parameter:
 
 ```kotlin
 oneOrMore(QuantifierMode.LAZY) { digit() }
-repeat(2, 5, QuantifierMode.POSSESSIVE) { wordChar() }
+repeat(2, 5, QuantifierMode.POSSESSIVE) { wordChar() }  // JVM only
 ```
 
 ### Lookaround Assertions
@@ -820,5 +852,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Acknowledgments
 
-Inspired by similar DSL libraries in other languages and the need for more readable regex patterns in Kotlin.  
+Inspired by similar DSL libraries in other languages and the need for more readable regex patterns in Kotlin.
 Assisted by AI tools for boilerplate generation and documentation.
