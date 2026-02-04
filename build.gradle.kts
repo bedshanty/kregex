@@ -76,6 +76,7 @@ kotlin {
         val jvmTest by getting
 
         val jsMain by getting
+        val jsTest by getting
     }
 }
 
