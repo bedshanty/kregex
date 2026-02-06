@@ -5,6 +5,7 @@
 [![CI](https://github.com/bedshanty/kregex/actions/workflows/ci.yml/badge.svg)](https://github.com/bedshanty/kregex/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bedshanty/kregex)](https://central.sonatype.com/artifact/io.github.bedshanty/kregex)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/docs/multiplatform.html)
 
 **Kregex**는 복잡하고 난해한 정규식 패턴을 직관적이고 구조화된 Kotlin 코드로 만들어주는 DSL 라이브러리입니다. — 정규식을 **쉽게 사용**하고, **쉽게 읽고**, **쉽게 유지보수**할 수 있게 해줍니다.
 
@@ -593,8 +594,9 @@ optionalPossessive { digit() }      // (?:\d)?+
 모드를 매개변수로 지정할 수도 있습니다:
 
 ```kotlin
+oneOrMore(QuantifierMode.GREEDY) { digit() }  // 기본값
 oneOrMore(QuantifierMode.LAZY) { digit() }
-repeat(2, 5, QuantifierMode.POSSESSIVE) { wordChar() }
+repeat(2, 5, QuantifierMode.LAZY) { wordChar() }
 ```
 
 ### 전후방 탐색

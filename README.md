@@ -5,6 +5,7 @@
 [![CI](https://github.com/bedshanty/kregex/actions/workflows/ci.yml/badge.svg)](https://github.com/bedshanty/kregex/actions/workflows/ci.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.bedshanty/kregex)](https://central.sonatype.com/artifact/io.github.bedshanty/kregex)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org/docs/multiplatform.html)
 
 **Kregex** is a Kotlin Multiplatform DSL library for building regular expressions in a readable, type-safe, and maintainable way.
 
@@ -571,8 +572,9 @@ optionalPossessive { digit() }      // (?:\d)?+
 You can also specify the mode as a parameter:
 
 ```kotlin
+oneOrMore(QuantifierMode.GREEDY) { digit() }  // default
 oneOrMore(QuantifierMode.LAZY) { digit() }
-repeat(2, 5, QuantifierMode.POSSESSIVE) { wordChar() }  // JVM only
+repeat(2, 5, QuantifierMode.LAZY) { wordChar() }
 ```
 
 ### Lookaround Assertions
