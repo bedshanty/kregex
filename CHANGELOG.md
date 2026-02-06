@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-02-06
+
+### Added
+- Kotlin Multiplatform support (JVM, JS, Native)
+- Unit tests for JavaScript regex support
+- Vararg overloads for `anyOf`, `noneOf`, and `chars`
+
+### Changed
+- Migrated build to Gradle Version Catalog
+- Renamed `RegexBuilderJvm` to `RegexBuilder`
+- Updated CI/CD configuration for multiplatform builds
+
 ## [0.3.0] - 2026-02-03
 
 ### Added
@@ -37,6 +49,7 @@ Initial release.
 - POSIX character classes support
 - Maven Central publishing with CI/CD
 
+[0.4.0]: https://github.com/bedshanty/kregex/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/bedshanty/kregex/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/bedshanty/kregex/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/bedshanty/kregex/releases/tag/0.1.0
