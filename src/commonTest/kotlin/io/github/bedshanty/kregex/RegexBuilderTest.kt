@@ -454,6 +454,100 @@ class RegexBuilderTest {
     }
 
     @Test
+    fun anyOfVarargCharCreatesCharacterSet() {
+        val pattern = regex {
+            line { anyOf('a', 'b', 'c') }
+        }
+        assertEquals("^[abc]$", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("b"))
+        assertTrue(pattern.matches("c"))
+        assertFalse(pattern.matches("d"))
+    }
+
+    @Test
+    fun anyOfVarargCharEscapesSpecialCharacters() {
+        val pattern = regex {
+            line { anyOf('.', '*', '?', '[', ']') }
+        }
+        assertTrue(pattern.matches("."))
+        assertTrue(pattern.matches("*"))
+        assertTrue(pattern.matches("?"))
+        assertTrue(pattern.matches("["))
+        assertTrue(pattern.matches("]"))
+        assertFalse(pattern.matches("a"))
+    }
+
+    @Test
+    fun anyOfMultipleStringsCombinesAllCharacters() {
+        val pattern = regex {
+            line { anyOf("abc", "xyz") }
+        }
+        assertEquals("^[abcxyz]$", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("x"))
+        assertTrue(pattern.matches("z"))
+        assertFalse(pattern.matches("d"))
+    }
+
+    @Test
+    fun noneOfVarargCharCreatesNegatedCharacterSet() {
+        val pattern = regex {
+            line { noneOf('a', 'b', 'c') }
+        }
+        assertEquals("^[^abc]$", pattern.pattern)
+        assertTrue(pattern.matches("d"))
+        assertTrue(pattern.matches("x"))
+        assertFalse(pattern.matches("a"))
+        assertFalse(pattern.matches("b"))
+    }
+
+    @Test
+    fun noneOfMultipleStringsCombinesAllCharacters() {
+        val pattern = regex {
+            line { noneOf("abc", "xyz") }
+        }
+        assertEquals("^[^abcxyz]$", pattern.pattern)
+        assertTrue(pattern.matches("d"))
+        assertTrue(pattern.matches("m"))
+        assertFalse(pattern.matches("a"))
+        assertFalse(pattern.matches("z"))
+    }
+
+    @Test
+    fun charClassCharsVarargCharAddsCharacters() {
+        val pattern = regex {
+            line {
+                charClass {
+                    chars('a', 'b', 'c')
+                    chars('.', '-')
+                }
+            }
+        }
+        // Note: . doesn't need escaping inside character class, only - does
+        assertEquals("^[abc.\\-]$", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("."))
+        assertTrue(pattern.matches("-"))
+        assertFalse(pattern.matches("d"))
+    }
+
+    @Test
+    fun charClassCharsMultipleStringsAddsAllCharacters() {
+        val pattern = regex {
+            line {
+                charClass {
+                    chars("abc", "123")
+                }
+            }
+        }
+        assertEquals("^[abc123]$", pattern.pattern)
+        assertTrue(pattern.matches("a"))
+        assertTrue(pattern.matches("1"))
+        assertFalse(pattern.matches("d"))
+    }
+
+    @Test
     fun rangeCreatesCharacterRange() {
         val pattern = regex {
             startOfLine()

@@ -475,11 +475,33 @@ public class RegexBuilder : CharacterRangeCapable {
 
     /**
      * Appends a character set (`[...]`).
+     * All characters from all strings are combined into a single character class.
      * Special characters inside the set are automatically escaped.
      *
-     * @param chars The characters to include in the set (e.g., "abc" -> "[abc]").
+     * Example:
+     * ```kotlin
+     * anyOf("abc")          // [abc]
+     * anyOf("abc", "xyz")   // [abcxyz]
+     * ```
+     *
+     * @param strings The strings whose characters to include in the set.
      */
-    public fun anyOf(chars: String): Unit = append("[${escapeForCharClass(chars)}]")
+    public fun anyOf(vararg strings: String): Unit =
+        append("[${escapeForCharClass(strings.joinToString(""))}]")
+
+    /**
+     * Appends a character set from individual characters (`[...]`).
+     * Special characters inside the set are automatically escaped.
+     *
+     * Example:
+     * ```kotlin
+     * anyOf('a', 'b', 'c')  // [abc]
+     * anyOf('.', '*', '?')  // [\.\*\?]
+     * ```
+     *
+     * @param chars The characters to include in the set.
+     */
+    public fun anyOf(vararg chars: Char): Unit = anyOf(chars.concatToString())
 
     /**
      * Creates a character class using a builder.
@@ -499,11 +521,34 @@ public class RegexBuilder : CharacterRangeCapable {
     /**
      * Appends a negated character set (`[^...]`).
      * Matches any character NOT in the given set.
+     * All characters from all strings are combined into a single negated character class.
      * Special characters inside the set are automatically escaped.
      *
-     * @param chars The characters to exclude (e.g., "abc" -> "[^abc]").
+     * Example:
+     * ```kotlin
+     * noneOf("abc")          // [^abc]
+     * noneOf("abc", "xyz")   // [^abcxyz]
+     * ```
+     *
+     * @param strings The strings whose characters to exclude from matching.
      */
-    public fun noneOf(chars: String): Unit = append("[^${escapeForCharClass(chars)}]")
+    public fun noneOf(vararg strings: String): Unit =
+        append("[^${escapeForCharClass(strings.joinToString(""))}]")
+
+    /**
+     * Appends a negated character set from individual characters (`[^...]`).
+     * Matches any character NOT in the given set.
+     * Special characters inside the set are automatically escaped.
+     *
+     * Example:
+     * ```kotlin
+     * noneOf('a', 'b', 'c')  // [^abc]
+     * noneOf('0', '1')       // [^01]
+     * ```
+     *
+     * @param chars The characters to exclude from matching.
+     */
+    public fun noneOf(vararg chars: Char): Unit = noneOf(chars.concatToString())
 
     /**
      * Creates a negated character class using a builder.
@@ -1096,11 +1141,35 @@ public class CharClassBuilder(private val negated: Boolean = false) : CharacterR
      * Adds individual characters to the class.
      * Special characters are automatically escaped.
      *
+     * Example:
+     * ```kotlin
+     * charClass {
+     *     chars("abc")          // abc
+     *     chars("abc", "xyz")   // abcxyz
+     * }
+     * ```
+     *
+     * @param strings The strings whose characters to add.
+     */
+    public fun chars(vararg strings: String) {
+        buffer.append(escapeForCharClass(strings.joinToString("")))
+    }
+
+    /**
+     * Adds individual characters to the class from vararg.
+     * Special characters are automatically escaped.
+     *
+     * Example:
+     * ```kotlin
+     * charClass {
+     *     chars('a', 'b', 'c')  // abc
+     *     chars('.', '*')       // \.\*
+     * }
+     * ```
+     *
      * @param chars The characters to add.
      */
-    public fun chars(chars: String) {
-        buffer.append(escapeForCharClass(chars))
-    }
+    public fun chars(vararg chars: Char): Unit = chars(chars.concatToString())
 
     /**
      * Adds a single character to the class.
