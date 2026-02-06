@@ -442,8 +442,12 @@ regex {
 | `literal("text")` | (이스케이프됨) | 텍스트 그대로 매칭 |
 | `char('x')` | (이스케이프됨) | 단일 문자 매칭 |
 | `anyOf("abc")` | `[abc]` | 이 문자들 중 하나 |
+| `anyOf("abc", "xyz")` | `[abcxyz]` | 여러 문자열 합침 |
+| `anyOf('a', 'b', 'c')` | `[abc]` | vararg 문자 |
 | `anyOf { }` | `[...]` | 문자 클래스 빌더 (`charClass`의 별칭) |
 | `noneOf("abc")` | `[^abc]` | 이 문자들 제외 |
+| `noneOf("abc", "xyz")` | `[^abcxyz]` | 여러 문자열 합침 (부정) |
+| `noneOf('a', 'b', 'c')` | `[^abc]` | vararg 문자 (부정) |
 | `noneOf { }` | `[^...]` | 부정 문자 클래스 빌더 (`negatedCharClass`의 별칭) |
 | `range('a', 'z')` | `[a-z]` | 문자 범위 |
 | `appendRaw("pattern")` | (그대로) | Raw 패턴 (이스케이프 없음) |
@@ -454,10 +458,12 @@ regex {
 anyOf {
     range('a', 'z')
     range('A', 'Z')
-    chars("_-")
+    chars("_-")          // String
+    chars('!', '@')      // Vararg Char
+    chars("abc", "123")  // 여러 문자열
     digit()
 }
-// 결과: [a-zA-Z_\-\d]
+// 결과: [a-zA-Z_\-!@abc123\d]
 
 noneOf {
     range('0', '9')

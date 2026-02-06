@@ -460,8 +460,12 @@ Available methods inside `posix { }`:
 | `literal("text")` | (escaped) | Match text literally |
 | `char('x')` | (escaped) | Match single character |
 | `anyOf("abc")` | `[abc]` | Any of these characters |
+| `anyOf("abc", "xyz")` | `[abcxyz]` | Multiple strings combined |
+| `anyOf('a', 'b', 'c')` | `[abc]` | Vararg characters |
 | `anyOf { }` | `[...]` | Character class builder (alias for `charClass`) |
 | `noneOf("abc")` | `[^abc]` | None of these characters |
+| `noneOf("abc", "xyz")` | `[^abcxyz]` | Multiple strings combined (negated) |
+| `noneOf('a', 'b', 'c')` | `[^abc]` | Vararg characters (negated) |
 | `noneOf { }` | `[^...]` | Negated character class builder (alias for `negatedCharClass`) |
 | `range('a', 'z')` | `[a-z]` | Character range |
 | `notInRange('a', 'z')` | `[^a-z]` | Negated character range |
@@ -473,10 +477,12 @@ Available methods inside `posix { }`:
 anyOf {
     range('a', 'z')
     range('A', 'Z')
-    chars("_-")
+    chars("_-")          // String
+    chars('!', '@')      // Vararg Char
+    chars("abc", "123")  // Multiple strings
     digit()
 }
-// Results in: [a-zA-Z_\-\d]
+// Results in: [a-zA-Z_\-!@abc123\d]
 
 noneOf {
     range('0', '9')
