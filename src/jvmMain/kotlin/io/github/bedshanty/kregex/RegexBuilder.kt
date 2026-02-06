@@ -1,3 +1,5 @@
+@file:JvmName("RegexBuilderJvm")
+
 package io.github.bedshanty.kregex
 
 /**
